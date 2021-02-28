@@ -17,3 +17,6 @@ class SaveFigure:
         fig.tight_layout()
         for ext, plot_dir in self.plot_dirs.items():
             fig.savefig(plot_dir / f"{name}.{ext}", bbox_inches="tight", dpi=160)
+
+
+evf = lambda S, f, **arg: (S, f(S, **arg))
