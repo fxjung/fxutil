@@ -26,4 +26,4 @@ pd.set_option("display.max_columns", 500)
 pd.set_option("display.width", 1000)
 
 plt.rc("text", usetex=True)
-plt.rc("text.latex", preamble=r"\usepackage{nicefrac}")
+plt.rc("text.latex", preamble=r"\usepackage{nicefrac}\usepackage{commath}")
