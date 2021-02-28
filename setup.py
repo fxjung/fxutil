@@ -20,7 +20,7 @@ setup(
     # ],
     packages=find_packages(),
     # entry_points={"console_scripts": ["paperfridge = paperfridge:start_paperfridge"]},
-    install_requires=["matplotlib", "black"],
+    install_requires=["matplotlib", "black", "pre-commit"],
     author="Felix Jung",
     author_email="jung@posteo.de",
 )
