@@ -9,7 +9,7 @@ with open(path.join(ROOT_DIR, "README.md"), encoding="utf-8") as f:
 setup(
     name="fxutil",
     version="0.1alpha",
-    description=("handy utils"),
+    description="handy utils",
     long_description=long_description,
     # url='',
     keywords="utilities, python, science",
