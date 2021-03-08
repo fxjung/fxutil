@@ -21,6 +21,7 @@ import seaborn as sns
 
 from pathlib import Path
 from IPython.display import display
+from cycler import cycler
 
 pd.set_option("display.max_rows", 500)
 pd.set_option("display.max_columns", 500)
