@@ -31,6 +31,7 @@ setup(
         "pandas",
         "networkx",
         "seaborn",
+        "pympler",
     ],
     author="Felix Jung",
     author_email="jung@posteo.de",

@@ -1,10 +1,12 @@
+import warnings
+
 import matplotlib.pyplot as plt
 import itertools as it
 import functools as ft
 import numpy as np
 import operator as op
 
-
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from cycler import cycler
 
@@ -41,14 +43,60 @@ class SaveFigure:
             )
 
 
+solarized_colors = dict(
+    base03="#002b36",
+    base02="#073642",
+    base01="#586e75",
+    base00="#657b83",
+    base0="#839496",
+    base1="#93a1a1",
+    base2="#eee8d5",
+    base3="#fdf6e3",
+    yellow="#b58900",
+    orange="#cb4b16",
+    red="#dc322f",
+    magenta="#d33682",
+    violet="#6c71c4",
+    blue="#268bd2",
+    cyan="#2aa198",
+    green="#859900",
+)
+
+
 def easy_prop_cycle(ax, N=10, cmap="cividis", markers=None):
     cyclers = []
     if cmap is not None:
+        cycle = []
+        if isinstance(cmap, str):
+            if cmap == "solarized":
+                scs = (
+                    # "base1",
+                    # "base2",
+                    "yellow",
+                    "orange",
+                    "red",
+                    "magenta",
+                    "violet",
+                    "blue",
+                    "cyan",
+                    "green",
+                )
+                cycle = [solarized_colors[sc] for sc in scs]
+            else:
+                cycle = [plt.cm.get_cmap(cmap)(i) for i in np.r_[0 : 1 : N * 1j]]
+        elif isinstance(cmap, Iterable):
+            cycle = list(cmap)
+        else:
+            raise TypeError(f"incompatible cmap type: {type(cmap)}")
 
+        if len(cycle) != N:
+            warnings.warn(
+                f"{N=}, but number of colors in cycle is {len(cycle)}.", UserWarning
+            )
         cyclers.append(
             cycler(
                 "color",
-                (plt.cm.get_cmap(cmap)(i) for i in np.r_[0 : 1 : N * 1j]),
+                cycle,
             )
         )
 
@@ -60,3 +108,7 @@ def easy_prop_cycle(ax, N=10, cmap="cividis", markers=None):
 
 
 evf = lambda S, f, **arg: (S, f(S, **arg))
+"""
+Use like 
+`ax.plot(*evf(np.r_[0:1:50j], lambda x, c: x ** 2 + c, c=5))`
+"""
