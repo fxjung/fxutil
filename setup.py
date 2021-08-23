@@ -35,4 +35,5 @@ setup(
     ],
     author="Felix Jung",
     author_email="jung@posteo.de",
+    entry_points={"console_scripts": ["fxutil = fxutil.cli:cli"]},
 )

@@ -112,3 +112,7 @@ evf = lambda S, f, **arg: (S, f(S, **arg))
 Use like 
 `ax.plot(*evf(np.r_[0:1:50j], lambda x, c: x ** 2 + c, c=5))`
 """
+
+
+def figax(figsize=(4, 3), dpi=130):
+    return plt.subplots(figsize=figsize, dpi=dpi)
