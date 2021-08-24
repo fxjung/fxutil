@@ -1,23 +1,10 @@
-from textwrap import wrap
 from scipy import stats
-import sqlite3
 from matplotlib.lines import Line2D
-from scipy.stats import norm, lognorm
-import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt, matplotlib.cm as cm, matplotlib.colors as mcolors
 from matplotlib.ticker import ScalarFormatter
-from mpl_toolkits import mplot3d
 import numpy as np, math, os
-import read_store as sf
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from matplotlib import collections as mc
-import tumbling_busses_numba as tbn
-
-from scipy import interpolate
-from matplotlib import gridspec
 from scipy.optimize import curve_fit
 from sklearn.metrics import r2_score
-import seaborn as sns
 import pandas as pd
 from string import ascii_lowercase
 
@@ -247,14 +234,14 @@ def my_function5(x, alpha, b, c, d, e):
 
 
 def e_velocity_analytic(x, alpha, beta, gamma, lam, v, B, lmax, ts):
-    """ "calculates e vlocity with parameters alpha and beta"""
+    """"calculates e vlocity with parameters alpha and beta"""
     wn = (2 * x / lmax) ** 2
     res = beta * (wn ** (1 / alpha)) + gamma
     return res
 
 
 def e_velocity_analytic2(x, alpha, beta, lam, v, B, lmax, ts):
-    """ "calculates e vlocity with parameters alpha and beta"""
+    """"calculates e vlocity with parameters alpha and beta"""
     z = (1 - 2 * x / lmax) ** 2
     v0 = alpha * ts
     y = (
@@ -1894,14 +1881,14 @@ def plot_anything(
     plt.show()
     try:
         if parameterstr != None:
-            sf.store_plotdata(
+            store_plotdata(
                 directory,
                 this_plot_suffix + plotname[:-3] + "csv",
                 np.array([pool_radius, value_by_pool_radius, parameter_data]),
                 variable + ", " + value + ", " + parameter,
             )
         else:
-            sf.store_plotdata(
+            store_plotdata(
                 directory,
                 this_plot_suffix + plotname[:-3] + "csv",
                 np.array([pool_radius, value_by_pool_radius]),
@@ -1912,3 +1899,8 @@ def plot_anything(
     # print(fit_results)
     if len(result_df) > 0:
         return result_df
+
+
+def store_plotdata(directory, filename, data, header):
+    store_data = np.transpose(np.array(data))
+    np.savetxt(directory + filename, store_data, delimiter=", ", header=header)

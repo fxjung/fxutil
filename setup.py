@@ -32,6 +32,7 @@ setup(
         "networkx",
         "seaborn",
         "pympler",
+        "sklearn",
     ],
     author="Felix Jung",
     author_email="jung@posteo.de",
