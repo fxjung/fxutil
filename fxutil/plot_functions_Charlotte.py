@@ -8,6 +8,16 @@ from sklearn.metrics import r2_score
 import pandas as pd
 from string import ascii_lowercase
 
+
+def store_plotdata(directory, filename, data, header):
+    np.savetxt(
+        directory + filename,
+        np.transpose(np.array(data)),
+        delimiter=", ",
+        header=header,
+    )
+
+
 # fitfunctions
 def line_0(x, a):
     """quadratic function with b=0 and c=1 (has to go through (0,1)"""
@@ -234,14 +244,14 @@ def my_function5(x, alpha, b, c, d, e):
 
 
 def e_velocity_analytic(x, alpha, beta, gamma, lam, v, B, lmax, ts):
-    """"calculates e vlocity with parameters alpha and beta"""
+    """ "calculates e vlocity with parameters alpha and beta"""
     wn = (2 * x / lmax) ** 2
     res = beta * (wn ** (1 / alpha)) + gamma
     return res
 
 
 def e_velocity_analytic2(x, alpha, beta, lam, v, B, lmax, ts):
-    """"calculates e vlocity with parameters alpha and beta"""
+    """ "calculates e vlocity with parameters alpha and beta"""
     z = (1 - 2 * x / lmax) ** 2
     v0 = alpha * ts
     y = (
@@ -1899,8 +1909,3 @@ def plot_anything(
     # print(fit_results)
     if len(result_df) > 0:
         return result_df
-
-
-def store_plotdata(directory, filename, data, header):
-    store_data = np.transpose(np.array(data))
-    np.savetxt(directory + filename, store_data, delimiter=", ", header=header)

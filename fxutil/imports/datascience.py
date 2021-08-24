@@ -32,6 +32,10 @@ plt.rc("text.latex", preamble=r"\usepackage{nicefrac}\usepackage{commath}")
 
 from fxutil.plotting import evf
 
+"""
+Use like `from fxutil.imports.datascience import *
+"""
+
 
 def set_plot_dark():
     default_cycler = plt.rcParams["axes.prop_cycle"]
