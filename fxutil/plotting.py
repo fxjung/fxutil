@@ -11,6 +11,16 @@ from pathlib import Path
 from cycler import cycler
 
 
+def set_plot_dark():
+    default_cycler = plt.rcParams["axes.prop_cycle"]
+    plt.style.use("dark_background")
+    plt.rcParams["axes.prop_cycle"] = default_cycler
+    plt.rcParams["axes.facecolor"] = (1, 1, 1, 0)
+    plt.rcParams["figure.facecolor"] = (1, 1, 1, 0)
+    plt.rcParams["legend.framealpha"] = None
+    plt.rcParams["legend.facecolor"] = (0, 0, 0, 0.1)
+
+
 class SaveFigure:
     def __init__(
         self,
@@ -18,6 +28,8 @@ class SaveFigure:
         suffix: str = "",
         output_dpi: int = 250,
         output_transparency: bool = True,
+        make_tex_safe: bool = True,
+        dark: bool = True,
     ):
         plot_dir = Path(plot_dir)
         self.plot_dirs = {}
@@ -28,11 +40,36 @@ class SaveFigure:
         self.output_dpi = output_dpi
         self.output_transparency = output_transparency
         self.suffix = suffix
+        self.make_tex_safe = make_tex_safe
+        self.dark = dark
+
+        if self.dark:
+            set_plot_dark()
 
     def __call__(self, name, fig=None):
         name = (name + self.suffix).replace(" ", "_")
         if fig is None:
             fig = plt.gcf()
+        ax = plt.gca()
+        legend = ax.get_legend()
+
+        if self.make_tex_safe:
+            if "$" not in (label := ax.get_xlabel()):
+                ax.set_xlabel(label.replace("_", " "))
+
+            if "$" not in (label := ax.get_ylabel()):
+                ax.set_ylabel(label.replace("_", " "))
+
+            if "$" not in (label := ax.get_title()):
+                ax.set_title(label.replace("_", " "))
+
+            for text in legend.texts:
+                if "$" not in (label := text.get_text()):
+                    text.set_text(label.replace("_", " "))
+
+            if "$" not in (label := legend.get_title().get_text()):
+                legend.set_title(label.replace("_", " "))
+
         fig.tight_layout()
         for ext, plot_dir in self.plot_dirs.items():
             fig.savefig(

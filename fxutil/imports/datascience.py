@@ -37,12 +37,4 @@ plt.rc(
 """,
 )
 
-from fxutil.plotting import evf
-
-
-def set_plot_dark():
-    default_cycler = plt.rcParams["axes.prop_cycle"]
-    plt.style.use("dark_background")
-    plt.rcParams["axes.prop_cycle"] = default_cycler
-    plt.rcParams["axes.facecolor"] = (1, 1, 1, 0)
-    plt.rcParams["figure.facecolor"] = (1, 1, 1, 0)
+from fxutil.plotting import evf, set_plot_dark
