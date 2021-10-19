@@ -50,6 +50,8 @@ class SaveFigure:
         name = (name + self.suffix).replace(" ", "_")
         if fig is None:
             fig = plt.gcf()
+
+        # TODO multiple axes
         ax = plt.gca()
         legend = ax.get_legend()
 
@@ -63,12 +65,13 @@ class SaveFigure:
             if "$" not in (label := ax.get_title()):
                 ax.set_title(label.replace("_", " "))
 
-            for text in legend.texts:
-                if "$" not in (label := text.get_text()):
-                    text.set_text(label.replace("_", " "))
+            if legend is not None:
+                for text in legend.texts:
+                    if "$" not in (label := text.get_text()):
+                        text.set_text(label.replace("_", " "))
 
-            if "$" not in (label := legend.get_title().get_text()):
-                legend.set_title(label.replace("_", " "))
+                if "$" not in (label := legend.get_title().get_text()):
+                    legend.set_title(label.replace("_", " "))
 
         fig.tight_layout()
         for ext, plot_dir in self.plot_dirs.items():

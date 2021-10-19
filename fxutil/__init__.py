@@ -29,3 +29,27 @@ Returns
 -------
 str
 """
+
+
+def scinum(a, force_pref=False) -> str:
+    """
+    Return latex-formatted string representation of number in scientific notation.
+    Parameters
+    ----------
+    a
+        number to format
+    force_pref
+        force prepending sign prefix
+
+    Returns
+    -------
+
+    """
+    s = fr"{'' if not force_pref else ('+' if a>= 0 else '')}"
+    e = m.floor(m.log10(abs(a)))
+    if abs(e) > 3:
+        s += fr"{a*10**(-e):.2f}\times 10^{{{e}}}"
+    else:
+        s += fr"{a:.2f}"
+    s += "\,"
+    return s
