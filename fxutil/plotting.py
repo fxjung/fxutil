@@ -30,10 +30,11 @@ class SaveFigure:
         output_transparency: bool = True,
         make_tex_safe: bool = True,
         dark: bool = True,
+        filetypes=None,
     ):
         plot_dir = Path(plot_dir)
         self.plot_dirs = {}
-        for ext in ["pdf", "png"]:
+        for ext in filetypes or ["pdf", "png"]:
             self.plot_dirs[ext] = plot_dir / ext
             self.plot_dirs[ext].mkdir(exist_ok=True, parents=True)
 

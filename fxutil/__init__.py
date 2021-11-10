@@ -33,7 +33,8 @@ str
 
 def scinum(a, force_pref=False) -> str:
     """
-    Return latex-formatted string representation of number in scientific notation.
+    Return LaTeX-formatted string representation of number in scientific notation.
+
     Parameters
     ----------
     a
