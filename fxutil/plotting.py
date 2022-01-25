@@ -6,6 +6,7 @@ import functools as ft
 import numpy as np
 import operator as op
 
+from typing import Optional
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 from cycler import cycler
@@ -47,7 +48,12 @@ class SaveFigure:
         if self.dark:
             set_plot_dark()
 
-    def __call__(self, name, fig=None):
+    def __call__(
+        self,
+        name,
+        fig=None,
+        panel: Optional[str] = None,
+    ):
         name = (name + self.suffix).replace(" ", "_")
         if fig is None:
             fig = plt.gcf()
@@ -75,6 +81,16 @@ class SaveFigure:
                     legend.set_title(label.replace("_", " "))
 
         fig.tight_layout()
+        if panel is not None:
+            ax.text(
+                ax.get_xlim()[0],
+                ax.get_ylim()[1],
+                panel,
+                va="top",
+                ha="left",
+                backgroundcolor="k" if self.dark else "w",
+                color="w" if self.dark else "k",
+            )
         for ext, plot_dir in self.plot_dirs.items():
             fig.savefig(
                 plot_dir / f"{name}.{ext}",
@@ -155,5 +171,6 @@ Use like
 """
 
 
-def figax(figsize=(4, 3), dpi=130):
-    return plt.subplots(figsize=figsize, dpi=dpi)
+def figax(figsize=(4, 3), dpi=130, **kwargs):
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, **kwargs)
+    return fig, ax
