@@ -80,7 +80,6 @@ class SaveFigure:
                 if "$" not in (label := legend.get_title().get_text()):
                     legend.set_title(label.replace("_", " "))
 
-        fig.tight_layout()
         if panel is not None:
             ax.text(
                 ax.get_xlim()[0],
@@ -91,9 +90,20 @@ class SaveFigure:
                 backgroundcolor="k" if self.dark else "w",
                 color="w" if self.dark else "k",
             )
+
+        extra_artists = []
+        if legend is not None:
+            extra_artists.append(legend)
+
+        if fig._suptitle is not None:
+            extra_artists.append(fig._suptitle)
+
+        fig.tight_layout()
+
         for ext, plot_dir in self.plot_dirs.items():
             fig.savefig(
                 plot_dir / f"{name}.{ext}",
+                bbox_extra_artists=extra_artists,
                 bbox_inches="tight",
                 dpi=self.output_dpi,
                 transparent=self.output_transparency,
