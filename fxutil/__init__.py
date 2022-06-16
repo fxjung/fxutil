@@ -31,7 +31,33 @@ str
 """
 
 
-def scinum(a, force_pref=False) -> str:
+def round_by_method(x, ndigits, round_method: str = "round"):
+    """
+
+    Parameters
+    ----------
+    x
+    ndigits
+    round_method
+        One of 'round', 'floor', 'ceil'
+
+    Returns
+    -------
+
+    """
+    if round_method == "round":
+        return round(x, ndigits)
+    elif round_method == "floor":
+        e = 10**ndigits
+        return m.floor(x * e) / e
+    elif round_method == "ceil":
+        e = 10**ndigits
+        return m.ceil(x * e) / e
+    else:
+        raise ValueError
+
+
+def scinum(a, force_pref: bool = False, round_method: str = "round", ndigits=2) -> str:
     """
     Return LaTeX-formatted string representation of number in scientific notation.
 
@@ -41,16 +67,22 @@ def scinum(a, force_pref=False) -> str:
         number to format
     force_pref
         force prepending sign prefix
+    round_method
+        One of 'round', 'floor', 'ceil'
+    ndigits
+        Number of decimal places
 
     Returns
     -------
 
     """
-    s = fr"{'' if not force_pref else ('+' if a>= 0 else '')}"
+    s = rf"{'' if not force_pref else ('+' if a>= 0 else '')}"
     e = m.floor(m.log10(abs(a)))
-    if abs(e) > 3:
-        s += fr"{a*10**(-e):.2f}\times 10^{{{e}}}"
+
+    if abs(e) > 2:
+        m_ = round_by_method(a * 10 ** (-e), ndigits=ndigits, round_method=round_method)
+        s += rf"{m_:.{ndigits}f}\times 10^{{{e}}}"
     else:
-        s += fr"{a:.2f}"
+        s += rf"{round_by_method(a, ndigits=ndigits, round_method=round_method):.{ndigits}f}"
     s += "\,"
     return s
