@@ -108,4 +108,4 @@ def get_git_repo_path():
     if repository_path is None:
         raise ValueError(f"{working_dir} is not part of a git repository")
     else:
-        return Path(repository_path)
+        return Path(repository_path).parent
