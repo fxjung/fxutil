@@ -1,5 +1,9 @@
+import os
+import pygit2
+
 import math as m
 
+from pathlib import Path
 from pympler.asizeof import asizeof
 
 from fxutil.plotting import SaveFigure, evf, easy_prop_cycle
@@ -86,3 +90,22 @@ def scinum(a, force_pref: bool = False, round_method: str = "round", ndigits=2) 
         s += rf"{round_by_method(a, ndigits=ndigits, round_method=round_method):.{ndigits}f}"
     s += "\,"
     return s
+
+
+def get_git_repo_path():
+    """
+    Returns the path to the root of the inner most git repository that the
+    working directory resides in, if any. Raises if not contained in any
+    repository.
+
+    Returns
+    -------
+    repository_path: Path
+    """
+
+    working_dir = os.getcwd()
+    repository_path = pygit2.discover_repository(working_dir)
+    if repository_path is None:
+        raise ValueError(f"{working_dir} is not part of a git repository")
+    else:
+        return Path(repository_path)

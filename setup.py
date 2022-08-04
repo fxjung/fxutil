@@ -22,6 +22,7 @@ setup(
     # entry_points={"console_scripts": ["paperfridge = paperfridge:start_paperfridge"]},
     install_requires=[
         "black",
+        "pytest",
         "pre-commit",
         "matplotlib",
         "h5py",
@@ -32,6 +33,7 @@ setup(
         "networkx",
         "seaborn",
         "pympler",
+        "pygit2",
     ],
     author="Felix Jung",
     author_email="jung@posteo.de",
