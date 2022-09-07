@@ -80,6 +80,14 @@ def scinum(a, force_pref: bool = False, round_method: str = "round", ndigits=2) 
     -------
 
     """
+
+    if a == 0:
+        s = "0"
+        if ndigits > 0:
+            s += "."
+            s += "0" * ndigits
+        return s
+
     s = rf"{'' if not force_pref else ('+' if a>= 0 else '')}"
     e = m.floor(m.log10(abs(a)))
 
