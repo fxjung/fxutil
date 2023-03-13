@@ -61,7 +61,13 @@ def round_by_method(x, ndigits, round_method: str = "round"):
         raise ValueError
 
 
-def scinum(a, force_pref: bool = False, round_method: str = "round", ndigits=2) -> str:
+def scinum(
+    a,
+    force_pref: bool = False,
+    round_method: str = "round",
+    ndigits: int = 2,
+    force_mode: str | None = None,
+) -> str:
     """
     Return LaTeX-formatted string representation of number in scientific notation.
 
@@ -75,6 +81,8 @@ def scinum(a, force_pref: bool = False, round_method: str = "round", ndigits=2) 
         One of 'round', 'floor', 'ceil'
     ndigits
         Number of decimal places
+    force_mode
+        'e', 'f'
 
     Returns
     -------
@@ -88,15 +96,23 @@ def scinum(a, force_pref: bool = False, round_method: str = "round", ndigits=2) 
             s += "0" * ndigits
         return s
 
+    if m.isinf(a):
+        s = "\infty"
+        if a > 0 and force_pref:
+            s = f"+{s}"
+        elif a < 0:
+            s = f"-{s}"
+        return s
+
     s = rf"{'' if not force_pref else ('+' if a>= 0 else '')}"
     e = m.floor(m.log10(abs(a)))
 
-    if abs(e) > 2:
+    if (abs(e) > 2 or force_mode == "e") and not force_mode == "f":
         m_ = round_by_method(a * 10 ** (-e), ndigits=ndigits, round_method=round_method)
         s += rf"{m_:.{ndigits}f}\times 10^{{{e}}}"
     else:
         s += rf"{round_by_method(a, ndigits=ndigits, round_method=round_method):.{ndigits}f}"
-    s += "\,"
+    s += "\,"  # TODO: should this always be appended??
     return s
 
 

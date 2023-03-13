@@ -53,47 +53,55 @@ class SaveFigure:
         name,
         fig=None,
         panel: Optional[str] = None,
+        extra_artists: Optional[list] = None,
     ):
         name = (name + self.suffix).replace(" ", "_")
         if fig is None:
             fig = plt.gcf()
 
+        extra_artists = extra_artists or []
+
         # TODO multiple axes
-        ax = plt.gca()
-        legend = ax.get_legend()
+        axs = fig.get_axes()
+        if isinstance(axs, plt.Axes):
+            axs = [[axs]]
+        elif len(np.shape(axs)) == 1:
+            axs = [axs]
 
-        if self.make_tex_safe:
-            if "$" not in (label := ax.get_xlabel()):
-                ax.set_xlabel(label.replace("_", " "))
+        for ax in np.ravel(axs):
+            legend = ax.get_legend()
 
-            if "$" not in (label := ax.get_ylabel()):
-                ax.set_ylabel(label.replace("_", " "))
+            if self.make_tex_safe:
+                if "$" not in (label := ax.get_xlabel()):
+                    ax.set_xlabel(label.replace("_", " "))
 
-            if "$" not in (label := ax.get_title()):
-                ax.set_title(label.replace("_", " "))
+                if "$" not in (label := ax.get_ylabel()):
+                    ax.set_ylabel(label.replace("_", " "))
+
+                if "$" not in (label := ax.get_title()):
+                    ax.set_title(label.replace("_", " "))
+
+                if legend is not None:
+                    for text in legend.texts:
+                        if "$" not in (label := text.get_text()):
+                            text.set_text(label.replace("_", " "))
+
+                    if "$" not in (label := legend.get_title().get_text()):
+                        legend.set_title(label.replace("_", " "))
+
+            # if panel is not None:
+            #     ax.text(
+            #         ax.get_xlim()[0],
+            #         ax.get_ylim()[1],
+            #         panel,
+            #         va="top",
+            #         ha="left",
+            #         backgroundcolor="k" if self.dark else "w",
+            #         color="w" if self.dark else "k",
+            #     )
 
             if legend is not None:
-                for text in legend.texts:
-                    if "$" not in (label := text.get_text()):
-                        text.set_text(label.replace("_", " "))
-
-                if "$" not in (label := legend.get_title().get_text()):
-                    legend.set_title(label.replace("_", " "))
-
-        if panel is not None:
-            ax.text(
-                ax.get_xlim()[0],
-                ax.get_ylim()[1],
-                panel,
-                va="top",
-                ha="left",
-                backgroundcolor="k" if self.dark else "w",
-                color="w" if self.dark else "k",
-            )
-
-        extra_artists = []
-        if legend is not None:
-            extra_artists.append(legend)
+                extra_artists.append(legend)
 
         if fig._suptitle is not None:
             extra_artists.append(fig._suptitle)
@@ -103,10 +111,10 @@ class SaveFigure:
         for ext, plot_dir in self.plot_dirs.items():
             fig.savefig(
                 plot_dir / f"{name}.{ext}",
-                bbox_extra_artists=extra_artists,
                 bbox_inches="tight",
                 dpi=self.output_dpi,
                 transparent=self.output_transparency,
+                bbox_extra_artists=extra_artists,
             )
 
 
