@@ -5,6 +5,7 @@ import math as m
 
 from pathlib import Path
 from pympler.asizeof import asizeof
+from typing import Optional
 
 from fxutil.plotting import SaveFigure, evf, easy_prop_cycle
 
@@ -25,10 +26,10 @@ my huge-ass object's size: 5.32 TiB
 Parameters
 ----------
 desc : str
-    string to print along 
+    string to print along
 obj : object
-    thing to get the size of 
-    
+    thing to get the size of
+
 Returns
 -------
 str
@@ -66,7 +67,7 @@ def scinum(
     force_pref: bool = False,
     round_method: str = "round",
     ndigits: int = 2,
-    force_mode: str | None = None,
+    force_mode: Optional[str] = None,
 ) -> str:
     """
     Return LaTeX-formatted string representation of number in scientific notation.

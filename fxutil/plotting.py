@@ -32,6 +32,7 @@ class SaveFigure:
         make_tex_safe: bool = True,
         dark: bool = True,
         filetypes=None,
+        name_str_space_replacement_char: str = "_",
     ):
         plot_dir = Path(plot_dir)
         self.plot_dirs = {}
@@ -44,6 +45,7 @@ class SaveFigure:
         self.suffix = suffix
         self.make_tex_safe = make_tex_safe
         self.dark = dark
+        self.name_str_space_replacement_char = name_str_space_replacement_char
 
         if self.dark:
             set_plot_dark()
@@ -55,7 +57,7 @@ class SaveFigure:
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
     ):
-        name = (name + self.suffix).replace(" ", "_")
+        name = (name + self.suffix).replace(" ", self.name_str_space_replacement_char)
         if fig is None:
             fig = plt.gcf()
 
@@ -106,6 +108,7 @@ class SaveFigure:
         if fig._suptitle is not None:
             extra_artists.append(fig._suptitle)
 
+        # TODO this still needs to be called beforehand sometimes (in the calling code) WHY??
         fig.tight_layout()
 
         for ext, plot_dir in self.plot_dirs.items():
@@ -184,7 +187,7 @@ def easy_prop_cycle(ax, N=10, cmap="cividis", markers=None):
 
 evf = lambda S, f, **arg: (S, f(S, **arg))
 """
-Use like 
+Use like
 `ax.plot(*evf(np.r_[0:1:50j], lambda x, c: x ** 2 + c, c=5))`
 """
 
@@ -192,3 +195,29 @@ Use like
 def figax(figsize=(4, 3), dpi=130, **kwargs):
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi, **kwargs)
     return fig, ax
+
+
+def set_aspect(ratio=3 / 4, axs=None):
+    """
+    Set "viewport aspect ratio" (i.e. axes aspect ratio) to the desired value,
+    for all axes of the current figure.
+
+    If some axes need to be excluded (like colorbars), supply the axes objects manually
+    using the ``axs`` parameter.
+
+    Parameters
+    ----------
+    ratio
+    axs
+
+    Returns
+    -------
+
+    """
+    if axs is None:
+        axs = plt.gcf().get_axes()
+    else:
+        axs = np.ravel(axs)
+
+    for ax in axs:
+        ax.set_aspect(1 / ax.get_data_ratio() * ratio)
