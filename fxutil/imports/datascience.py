@@ -30,13 +30,11 @@ pd.set_option("display.width", 1000)
 plt.rc("text", usetex=True)
 plt.rc(
     "text.latex",
-    preamble=r"""
-\usepackage{nicefrac}
+    preamble=r"""\usepackage{nicefrac}
 \usepackage{commath}
 \usepackage{amsfonts}
 \usepackage{lmodern}
-%\usepackage{cmbright}
-""",
+%\usepackage{cmbright}""",
 )
 
 plt.rc("pdf", fonttype=42)
