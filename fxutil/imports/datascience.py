@@ -39,15 +39,6 @@ plt.rc(
 """,
 )
 
-plt.rcParams.update(
-    {
-        "text.usetex": True,
-        "font.size": 10,
-        "font.family": "lmodern",
-        # 'font.sans-serif': 'sans-serif',
-    }
-)
-
 plt.rc("pdf", fonttype=42)
 
 SMALL_SIZE = 10
