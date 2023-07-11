@@ -6,119 +6,194 @@ import functools as ft
 import numpy as np
 import operator as op
 
-from typing import Optional
+from typing import Optional, Callable
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 from cycler import cycler
 
-
-def set_plot_dark():
-    default_cycler = plt.rcParams["axes.prop_cycle"]
-    plt.style.use("dark_background")
-    plt.rcParams["axes.prop_cycle"] = default_cycler
-    plt.rcParams["axes.facecolor"] = (1, 1, 1, 0)
-    plt.rcParams["figure.facecolor"] = (1, 1, 1, 0)
-    plt.rcParams["legend.framealpha"] = None
-    plt.rcParams["legend.facecolor"] = (0, 0, 0, 0.1)
+from fxutil.common import get_git_repo_path
 
 
 class SaveFigure:
     def __init__(
         self,
-        plot_dir,
+        plot_dir=None,
         suffix: str = "",
         output_dpi: int = 250,
         output_transparency: bool = True,
         make_tex_safe: bool = True,
-        dark: bool = True,
+        show_dark: bool = True,
+        save_dark: bool = True,
+        save_light: bool = True,
         filetypes=None,
-        name_str_space_replacement_char: str = "_",
+        name_str_space_replacement_char: str = "-",
     ):
-        plot_dir = Path(plot_dir)
+        # TODO: OPACITY!
+
+        if plot_dir is not None:
+            plot_dir = Path(plot_dir)
+        else:
+            try:
+                plot_dir = get_git_repo_path() / "data/figures"
+            except ValueError:
+                raise ValueError(
+                    "I got no plot_dir to work with and am not inside a git "
+                    "repository. Please specify plot_dir."
+                )
+
         self.plot_dirs = {}
-        for ext in filetypes or ["pdf", "png"]:
-            self.plot_dirs[ext] = plot_dir / ext
-            self.plot_dirs[ext].mkdir(exist_ok=True, parents=True)
+        if filetypes is None:
+            filetypes = ["pdf", "png"]
+        elif isinstance(filetypes, str):
+            filetypes = [filetypes]
+        if len(filetypes) == 1:
+            self.plot_dirs[filetypes[0]] = plot_dir
+        else:
+            for ext in filetypes or ["pdf", "png"]:
+                self.plot_dirs[ext] = plot_dir / ext
+                self.plot_dirs[ext].mkdir(exist_ok=True, parents=True)
 
         self.output_dpi = output_dpi
         self.output_transparency = output_transparency
         self.suffix = suffix
         self.make_tex_safe = make_tex_safe
-        self.dark = dark
+        self.show_dark = show_dark
+        self.save_dark = save_dark
+        self.save_light = save_light
         self.name_str_space_replacement_char = name_str_space_replacement_char
 
-        if self.dark:
-            set_plot_dark()
+        if self.show_dark:
+            plt.style.use(
+                [
+                    "dark_background",
+                    "fxutil.mplstyles.tex",
+                    "fxutil.mplstyles.dark",
+                ]
+            )
+        else:
+            plt.style.use(
+                [
+                    "default",
+                    "fxutil.mplstyles.tex",
+                    "fxutil.mplstyles.light",
+                ]
+            )
 
     def __call__(
         self,
-        name,
+        plot_function: Callable,
+        name=None,
         fig=None,
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
     ):
-        name = (name + self.suffix).replace(" ", self.name_str_space_replacement_char)
-        if fig is None:
-            fig = plt.gcf()
+        plot_function()
 
-        extra_artists = extra_artists or []
+        styles = {}
 
-        # TODO multiple axes
-        axs = fig.get_axes()
-        if isinstance(axs, plt.Axes):
-            axs = [[axs]]
-        elif len(np.shape(axs)) == 1:
-            axs = [axs]
+        if self.save_dark:
+            styles["dark"] = [
+                "dark_background",
+                "fxutil.mplstyles.tex",
+                "fxutil.mplstyles.dark",
+            ]
+        if self.save_light:
+            styles["light"] = [
+                "default",
+                "fxutil.mplstyles.tex",
+                "fxutil.mplstyles.light",
+            ]
 
-        for ax in np.ravel(axs):
-            legend = ax.get_legend()
+        for style_name, style in styles.items():
+            self._save_figure(
+                plot_function=plot_function,
+                style_name=style_name,
+                style=style,
+                name=name,
+                fig=fig,
+                panel=panel,
+                extra_artists=extra_artists,
+            )
 
-            if self.make_tex_safe:
-                if "$" not in (label := ax.get_xlabel()):
-                    ax.set_xlabel(label.replace("_", " "))
+    def _save_figure(
+        self,
+        plot_function: Callable,
+        style_name: str,
+        style: [str],
+        name=None,
+        fig=None,
+        panel: Optional[str] = None,
+        extra_artists: Optional[list] = None,
+    ):
+        with plt.style.context(style):
+            plot_function()
 
-                if "$" not in (label := ax.get_ylabel()):
-                    ax.set_ylabel(label.replace("_", " "))
+            name = (name + self.suffix).replace(
+                " ", self.name_str_space_replacement_char
+            )
+            if fig is None:
+                fig = plt.gcf()
 
-                if "$" not in (label := ax.get_title()):
-                    ax.set_title(label.replace("_", " "))
+            name += self.name_str_space_replacement_char + style_name
+
+            extra_artists = extra_artists or []
+
+            # TODO multiple axes
+            axs = fig.get_axes()
+            if isinstance(axs, plt.Axes):
+                axs = [[axs]]
+            elif len(np.shape(axs)) == 1:
+                axs = [axs]
+
+            for ax in np.ravel(axs):
+                legend = ax.get_legend()
+
+                if self.make_tex_safe:
+                    if "$" not in (label := ax.get_xlabel()):
+                        ax.set_xlabel(label.replace("_", " "))
+
+                    if "$" not in (label := ax.get_ylabel()):
+                        ax.set_ylabel(label.replace("_", " "))
+
+                    if "$" not in (label := ax.get_title()):
+                        ax.set_title(label.replace("_", " "))
+
+                    if legend is not None:
+                        for text in legend.texts:
+                            if "$" not in (label := text.get_text()):
+                                text.set_text(label.replace("_", " "))
+
+                        if "$" not in (label := legend.get_title().get_text()):
+                            legend.set_title(label.replace("_", " "))
+
+                # if panel is not None:
+                #     ax.text(
+                #         ax.get_xlim()[0],
+                #         ax.get_ylim()[1],
+                #         panel,
+                #         va="top",
+                #         ha="left",
+                #         backgroundcolor="k" if self.dark else "w",
+                #         color="w" if self.dark else "k",
+                #     )
 
                 if legend is not None:
-                    for text in legend.texts:
-                        if "$" not in (label := text.get_text()):
-                            text.set_text(label.replace("_", " "))
+                    extra_artists.append(legend)
 
-                    if "$" not in (label := legend.get_title().get_text()):
-                        legend.set_title(label.replace("_", " "))
+            if fig._suptitle is not None:
+                extra_artists.append(fig._suptitle)
 
-            # if panel is not None:
-            #     ax.text(
-            #         ax.get_xlim()[0],
-            #         ax.get_ylim()[1],
-            #         panel,
-            #         va="top",
-            #         ha="left",
-            #         backgroundcolor="k" if self.dark else "w",
-            #         color="w" if self.dark else "k",
-            #     )
+            # TODO this still needs to be called beforehand sometimes (in the calling code) WHY??
+            # fig.tight_layout()
 
-            if legend is not None:
-                extra_artists.append(legend)
-
-        if fig._suptitle is not None:
-            extra_artists.append(fig._suptitle)
-
-        # TODO this still needs to be called beforehand sometimes (in the calling code) WHY??
-        fig.tight_layout()
-
-        for ext, plot_dir in self.plot_dirs.items():
-            fig.savefig(
-                plot_dir / f"{name}.{ext}",
-                bbox_inches="tight",
-                dpi=self.output_dpi,
-                transparent=self.output_transparency,
-                bbox_extra_artists=extra_artists,
-            )
+            for ext, plot_dir in self.plot_dirs.items():
+                fig.savefig(
+                    plot_dir / f"{name}.{ext}",
+                    bbox_inches="tight",
+                    dpi=self.output_dpi,
+                    transparent=self.output_transparency,
+                    bbox_extra_artists=extra_artists,
+                )
 
 
 solarized_colors = dict(

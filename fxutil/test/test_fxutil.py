@@ -4,7 +4,7 @@ import pytest
 
 from pathlib import Path
 
-from fxutil import get_git_repo_path
+from fxutil.common import get_git_repo_path
 
 
 def test_get_git_repo_path(tmpdir):
