@@ -194,6 +194,7 @@ class SaveFigure:
                     transparent=self.output_transparency,
                     bbox_extra_artists=extra_artists,
                 )
+            plt.close(fig)
 
 
 solarized_colors = dict(
