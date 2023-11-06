@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fxutil"
+version = "0.1"
+authors = [
+    { name = "Felix Jung", email = "felix.jung@tu-dresden.de" },
+]
+description = """Some handy tools..."""
+keywords = ["utilities", "python", "science"]
+readme = "README.md"
+requires-python=">=3.10"
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "black == 23.10.1",
+    "pytest",
+    "pre-commit",
+    "matplotlib",
+    "h5py",
+    "tables",
+    "scipy",
+    "numpy",
+    "pandas",
+    "networkx",
+    "seaborn",
+    "pympler",
+    "pygit2",
+
+]
+
+[project.urls]
+"Repository" = "https://github.com/fxjung/fxutil"
+
+[project.scripts]
+fxutil = "fxutil.cli:cli"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = false
+py-modules = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.mplstyle"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | _deps
+  | buck-out
+  | build
+  | dist
+  | googletest
+)/
+'''
+
+# NOTE: you have to use single-quoted strings in TOML for regular expressions.
+# It's the equivalent of r-strings in Python.  Multiline strings are treated as
+# verbose regular expressions by Black.  Use [ ] to denote a significant space
+# character.
