@@ -1,12 +1,13 @@
 import warnings
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import itertools as it
 import functools as ft
 import numpy as np
 import operator as op
 
-from typing import Optional, Callable
+from typing import Optional, Callable, List
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 from cycler import cycler
@@ -27,6 +28,9 @@ class SaveFigure:
         save_light: bool = True,
         filetypes=None,
         name_str_space_replacement_char: str = "-",
+        fig_width_half: float = None,
+        fig_width_full: float = None,
+        fig_height_max: float = None,
     ):
         # TODO: OPACITY!
 
@@ -61,6 +65,10 @@ class SaveFigure:
         self.save_dark = save_dark
         self.save_light = save_light
         self.name_str_space_replacement_char = name_str_space_replacement_char
+
+        self.fig_width_half = fig_width_half or 170 / 2 / 25.4
+        self.fig_width_full = fig_width_full or 170 / 25.4
+        self.fig_height_max = fig_height_max or 195 / 25.4
 
         if self.show_dark:
             plt.style.use(
@@ -189,12 +197,85 @@ class SaveFigure:
             for ext, plot_dir in self.plot_dirs.items():
                 fig.savefig(
                     plot_dir / f"{name}.{ext}",
-                    bbox_inches="tight",
+                    # bbox_inches="tight",
                     dpi=self.output_dpi,
                     transparent=self.output_transparency,
                     bbox_extra_artists=extra_artists,
                 )
             plt.close(fig)
+
+    def make_figure(
+        self,
+        n_panels=None,
+        *,
+        n_rows: int = None,
+        n_cols: int = None,
+        width_ratios: Sequence[float] = None,
+        height_ratios: Sequence[float] = None,
+        hspace: float = 0.4,
+        wspace: float = 0.4,
+        bottom: float = 0.2,
+        top: float = 0.8,
+        left: float = 0.2,
+        right: float = 0.95,
+        panel_labels=None,
+    ):
+        if n_panels is None:
+            n_rows = n_rows or 1
+            n_cols = n_cols or 1
+            n_panels = n_rows * n_cols
+        else:
+            if n_rows is not None and n_cols is None:
+                n_cols = n_panels // n_rows + (1 if n_panels % n_rows else 0)
+            elif n_rows is None and n_cols is not None:
+                n_rows = n_panels // n_cols + (1 if n_panels % n_cols else 0)
+            elif n_rows is None and n_cols is None:
+                n_cols = 2
+                n_rows = n_panels // n_cols + (1 if n_panels % n_cols else 0)
+            else:
+                if n_rows * n_cols < n_panels:
+                    raise ValueError(
+                        "n_rows * n_cols must not be smaller "
+                        "than n_panels (for obvious reasons)"
+                    )
+
+        if panel_labels is None:
+            panel_labels = n_rows * n_cols > 1
+
+        fig = plt.figure(
+            figsize=(
+                self.fig_width_full,
+                min(self.fig_width_full / n_cols, self.fig_height_max),
+            ),
+            dpi=130,
+            # constrained_layout=True, # TODO what's with that?
+        )
+        width_ratios = width_ratios if width_ratios is not None else [1] * n_cols
+        gs = mpl.gridspec.GridSpec(
+            nrows=n_rows,
+            ncols=n_cols,
+            figure=fig,
+            width_ratios=width_ratios,
+            height_ratios=height_ratios,
+            hspace=hspace,
+            wspace=wspace,
+            bottom=bottom,
+            top=top,
+            left=left,
+            right=right,
+        )
+        axs = [fig.add_subplot(gs[i]) for i in range(n_panels)]
+        if panel_labels:
+            for i, ax in enumerate(axs, 97):
+                ax.text(
+                    -0.2,
+                    1.1,
+                    rf"\textbf{{({chr(i)})}}",
+                    transform=ax.transAxes,
+                    ha="right",
+                    va="bottom",
+                )
+        return fig, axs
 
 
 solarized_colors = dict(
