@@ -17,6 +17,7 @@ def package_manuscript(
     tex_name: str | Path = "manuscript.tex",
     figures_src_dir_name="figures",
     tables_src_dir_name="tables",
+    delete_existing:bool=True,
 ):
     submission_src_dir = Path(submission_src_dir)
     tex_name = Path(tex_name)
@@ -26,9 +27,11 @@ def package_manuscript(
     )
 
     zip_ofpath = submission_src_dir.resolve().parent / f"{target_dir.name}.zip"
-    zip_ofpath.unlink(missing_ok=True)
 
-    shutil.rmtree(target_dir, ignore_errors=True)
+    if delete_existing:
+        zip_ofpath.unlink(missing_ok=True)
+        shutil.rmtree(target_dir, ignore_errors=True)
+
     target_dir.mkdir()
 
     tex_src_path = submission_src_dir / tex_name
@@ -52,7 +55,7 @@ def package_manuscript(
     tex = pattern.sub(lambda m: rep[re.escape(m.group(0))], tex)
 
     tex = re.sub(
-        rf"(\\input\{{({tables_src_dir_name}/.+)\}})",
+        rf"(\\input\{{({tables_src_dir_name}/.+)\}})",  # FIXME correct escaping?
         lambda x: (submission_src_dir / f"{x.group(2)}.tex").read_text(),
         tex,
     )

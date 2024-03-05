@@ -1,32 +1,55 @@
-import click
+from typing import Annotated
+
+import typer
 
 from pathlib import Path
-from file_helpers import estimate_progress as _estimate_progress
 
+from fxutil.manuscript import package_manuscript as _package_manuscript
 
-@click.group()
-def cli():
-    """fxutil cli interface"""
-    ...
+import logging
 
+log = logging.getLogger(__name__)
 
-@cli.command()
-@click.argument(
-    "directory",
-    type=click.Path(exists=True, file_okay=False, dir_okay=True),
-    required=False,
+app = typer.Typer()
+manuscript_app = typer.Typer()
+
+app.add_typer(
+    manuscript_app, name="manuscript", help="Commands for working with manuscripts"
 )
-def estimate_progress(directory):
-    """
-    TODO
-    """
-    if directory is None:
-        directory = Path.cwd()
-    else:
-        directory = Path(directory).expanduser()
-
-    _estimate_progress(directory)
 
 
-if __name__ == "__main__":
-    cli()
+@manuscript_app.command("package")
+def package_manuscript(
+    src_dir: Annotated[
+        str, typer.Argument(help="The directory containing the manuscript source")
+    ],
+    tex_name: Annotated[
+        str,
+        typer.Argument(help="The name of the manuscript's main TeX file"),
+    ] = "manuscript.tex",
+    figures_dir: Annotated[
+        str,
+        typer.Argument(
+            help="The name of the directory containing the manuscript's figures",
+        ),
+    ] = "figures",
+    tables_dir: Annotated[
+        str,
+        typer.Argument(
+            help="The name of the directory containing the manuscript's tables",
+        ),
+    ] = "tables",
+    delete_existing: Annotated[
+        bool,
+        typer.Option(
+            help="Whether to delete any existing packaged directory and zip file",
+        ),
+    ] = True,
+):
+    _package_manuscript(
+        submission_src_dir=src_dir,
+        tex_name=tex_name,
+        figures_src_dir_name=figures_dir,
+        tables_src_dir_name=tables_dir,
+        delete_existing=delete_existing,
+    )

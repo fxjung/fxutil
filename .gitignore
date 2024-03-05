@@ -9,6 +9,8 @@
 targets
 core
 data
+data_local
+scratch
 legacy_data
 .idea
 

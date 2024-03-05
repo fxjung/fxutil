@@ -33,6 +33,7 @@ dependencies = [
     "seaborn",
     "pympler",
     "pygit2",
+    "typer",
 
 ]
 
@@ -40,7 +41,7 @@ dependencies = [
 "Repository" = "https://github.com/fxjung/fxutil"
 
 [project.scripts]
-fxutil = "fxutil.cli:cli"
+fxutil = "fxutil.cli:app"
 
 [tool.setuptools]
 zip-safe = false
