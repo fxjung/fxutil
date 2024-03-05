@@ -3,6 +3,13 @@
 
 ## Some hints
 
+### CLI commands
+
+In general, try `fxutil <cmd> --help` to get more help.
+
+- `fxutil manuscript package` -- Package a scientfic manuscript into a
+  journal-digestible zip file
+
 ### `SaveFigure`
 
 Use like:
