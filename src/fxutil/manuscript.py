@@ -17,7 +17,7 @@ def package_manuscript(
     tex_name: str | Path = "manuscript.tex",
     figures_src_dir_name="figures",
     tables_src_dir_name="tables",
-    delete_existing:bool=True,
+    delete_existing: bool = True,
 ):
     submission_src_dir = Path(submission_src_dir)
     tex_name = Path(tex_name)
