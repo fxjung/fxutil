@@ -75,7 +75,6 @@ def package_manuscript(
         )
         for i, old_path_str in enumerate(old_bibliography_paths_wo_suffix, 1)
     }
-    bib_map
 
     # change the figure includes
     rep = {re.escape(k): v for k, v in bib_map.items()}

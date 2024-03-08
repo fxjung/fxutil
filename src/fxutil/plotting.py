@@ -16,9 +16,13 @@ from fxutil.common import get_git_repo_path
 
 
 class SaveFigure:
+    """
+    A class to save figures in different styles and formats.
+    """
+
     def __init__(
         self,
-        plot_dir=None,
+        plot_dir: str | Path = None,
         suffix: str = "",
         output_dpi: int = 250,
         output_transparency: bool = True,
@@ -32,6 +36,29 @@ class SaveFigure:
         fig_width_full: float = None,
         fig_height_max: float = None,
     ):
+        """
+        Initialize a SaveFigure object.
+
+        Parameters
+        ----------
+        plot_dir
+            Output directory for the figures. If None, the directory is determined
+            automatically. If we are inside a git repository `<repo>`, plots are stored
+            to `<repo>/data/figures`. If we are not inside a git repository, plots are
+            stored to `./figures`, i.e. starting from the current working directory.
+        suffix
+        output_dpi
+        output_transparency
+        make_tex_safe
+        show_dark
+        save_dark
+        save_light
+        filetypes
+        name_str_space_replacement_char
+        fig_width_half
+        fig_width_full
+        fig_height_max
+        """
         # TODO: OPACITY!
 
         if plot_dir is not None:
@@ -40,10 +67,7 @@ class SaveFigure:
             try:
                 plot_dir = get_git_repo_path() / "data/figures"
             except ValueError:
-                raise ValueError(
-                    "I got no plot_dir to work with and am not inside a git "
-                    "repository. Please specify plot_dir."
-                )
+                plot_dir = Path("./figures")
 
         self.plot_dirs = {}
         if filetypes is None:
@@ -349,26 +373,45 @@ Use like
 """
 
 
-def figax(figsize=(4, 3), dpi=130, **kwargs):
+def figax(
+    figsize: tuple[float, float] = (4, 3), dpi: int = 130, **kwargs
+) -> tuple[plt.Figure, plt.Axes]:
+    """
+    Convenience function to create matplotlib figure and axis objects with the given
+    parameters.
+
+    Parameters
+    ----------
+    figsize
+        Figure size in inches (width, height).
+    dpi
+        Resolution of the figure (if rasterized output).
+    kwargs
+        Additional arguments passed to `plt.subplots`.
+    Returns
+    -------
+    fig, ax
+
+    """
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi, **kwargs)
     return fig, ax
 
 
-def set_aspect(ratio=3 / 4, axs=None):
+def set_aspect(ratio=3 / 4, axs=None) -> None:
     """
     Set "viewport aspect ratio" (i.e. axes aspect ratio) to the desired value,
     for all axes of the current figure.
 
-    If some axes need to be excluded (like colorbars), supply the axes objects manually
-    using the ``axs`` parameter.
+    If some axes need to be excluded (like colorbars), supply the axes objects to be
+    adjusted manually using the ``axs`` parameter.
 
     Parameters
     ----------
     ratio
+        The desired aspect ratio.
     axs
-
-    Returns
-    -------
+        The axes objects to be adjusted. If None, all axes of the current figure are
+        adjusted.
 
     """
     if axs is None:
