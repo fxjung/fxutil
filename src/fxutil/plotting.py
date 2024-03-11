@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import warnings
 
 import matplotlib as mpl
@@ -232,8 +234,8 @@ class SaveFigure:
         self,
         n_panels=None,
         *,
-        n_rows: int = None,
-        n_cols: int = None,
+        n_rows: int | None = None,
+        n_cols: int | None = None,
         width_ratios: Sequence[float] = None,
         height_ratios: Sequence[float] = None,
         hspace: float = 0.4,
