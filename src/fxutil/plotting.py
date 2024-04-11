@@ -395,7 +395,7 @@ def figax(
     fig, ax
 
     """
-    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, **kwargs)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, layout="constrained", **kwargs)
     return fig, ax
 
 
