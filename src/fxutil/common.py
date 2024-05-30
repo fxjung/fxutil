@@ -132,3 +132,45 @@ def get_git_repo_path():
         raise ValueError(f"{working_dir} is not part of a git repository")
     else:
         return Path(repository_path).parent
+
+
+def minmax(ser):
+    """
+    Convenience wrapper that returns the minimum and maximum of an iterable.
+
+    Parameters
+    ----------
+    ser
+        Iterable to find the minimum and maximum of.
+
+    Returns
+    -------
+    min
+        Minimum
+    max
+        Maximum
+    """
+    return min(ser), max(ser)
+
+
+def mmr(ser):
+    """
+    Convenience wrapper that returns the minimum, maximum, and value range of an
+    iterable.
+
+    Parameters
+    ----------
+    ser
+        Iterable to find the minimum, maximum, and value range of.
+
+    Returns
+    -------
+    min
+        Minimum
+    max
+        Maximum
+    range
+        Value range (maximum - minimum)
+    """
+    min_, max_ = minmax(ser)
+    return min_, max_, max_ - min_
