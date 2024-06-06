@@ -21,7 +21,7 @@ def package_manuscript(
     tables_src_dir_name="tables",
     delete_existing: bool = True,
 ):
-    submission_src_dir = Path(submission_src_dir)
+    submission_src_dir = Path(submission_src_dir).expanduser().resolve()
     tex_name = Path(tex_name)
 
     target_dir = (
@@ -88,6 +88,9 @@ def package_manuscript(
         new_path = target_dir / f"{Path(new_bib_local_path)}.bib"
         shutil.copy(old_path, new_path)
 
+    for bibtexstyle in submission_src_dir.glob("*.bst"):
+        shutil.copy(bibtexstyle, target_dir)
+
     pattern = re.compile(r"(^[^%]*(?<!\\))(%.*)$", flags=re.MULTILINE)
     # pattern.findall(tex)
 
@@ -107,6 +110,8 @@ def package_manuscript(
     if old_bibliography_paths_wo_suffix:
         bbl = bbl_path.read_text()
 
+    # breakpoint()
+
     tex = re.compile(r"\\bibliography\{[^}]+\}").sub(lambda _: bbl, tex)
     target_tex_path.write_text(tex)
 
@@ -119,8 +124,9 @@ def package_manuscript(
 
     bbl_files = [*target_dir.glob("*.bbl")]
     bib_files = [*target_dir.glob("*.bib")]
+    bst_files = [*target_dir.glob("*.bst")]
 
-    for path in it.chain(bbl_files, bib_files):
+    for path in it.chain(bbl_files, bib_files, bst_files):
         path.unlink()
 
     subprocess.run(["zip", "-r", zip_ofpath, target_dir.resolve()])
