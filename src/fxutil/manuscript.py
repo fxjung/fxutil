@@ -19,6 +19,7 @@ def package_manuscript(
     tex_name: str | Path = "manuscript.tex",
     figures_src_dir_name="figures",
     tables_src_dir_name="tables",
+    figures_dest_dir_name="figures",
     delete_existing: bool = True,
 ):
     submission_src_dir = Path(submission_src_dir).expanduser().resolve()
@@ -46,7 +47,7 @@ def package_manuscript(
     used_str_path_map = {
         old_path_str: (
             lambda i, old_path: str(
-                f"{figures_src_dir_name}/figure-{i}{old_path.suffix}"
+                f"{figures_dest_dir_name}/figure-{i}{old_path.suffix}"
             )
         )(i, Path(old_path_str))
         for i, old_path_str in enumerate(used_old_path_strs, 1)
@@ -63,7 +64,7 @@ def package_manuscript(
     )
 
     if used_str_path_map:
-        (target_dir / "figures").mkdir(exist_ok=True)
+        (target_dir / figures_dest_dir_name).mkdir(exist_ok=True)
     for old_path_str, new_path_str in used_str_path_map.items():
         old_path = submission_src_dir / Path(old_path_str)
         new_path = target_dir / Path(new_path_str)
@@ -78,7 +79,6 @@ def package_manuscript(
         for i, old_path_str in enumerate(old_bibliography_paths_wo_suffix, 1)
     }
 
-    # change the figure includes
     rep = {re.escape(k): v for k, v in bib_map.items()}
     pattern = re.compile(r"(?<=\\bibliography\{)" + "|".join(rep) + r"(?=\})")
     tex = pattern.sub(lambda m: rep[re.escape(m.group(0))], tex)

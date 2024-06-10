@@ -25,20 +25,26 @@ def package_manuscript(
     ],
     tex_name: Annotated[
         str,
-        typer.Argument(help="The name of the manuscript's main TeX file"),
+        typer.Option(help="The name of the manuscript's main TeX file"),
     ] = "manuscript.tex",
     figures_dir: Annotated[
         str,
-        typer.Argument(
+        typer.Option(
             help="The name of the directory containing the manuscript's figures",
         ),
     ] = "figures",
     tables_dir: Annotated[
         str,
-        typer.Argument(
+        typer.Option(
             help="The name of the directory containing the manuscript's tables",
         ),
     ] = "tables",
+    figures_dest_dir: Annotated[
+        str,
+        typer.Option(
+            help="The name of the directory containing the manuscript's figures in the packaged version",
+        ),
+    ] = "figures",
     delete_existing: Annotated[
         bool,
         typer.Option(
@@ -51,5 +57,6 @@ def package_manuscript(
         tex_name=tex_name,
         figures_src_dir_name=figures_dir,
         tables_src_dir_name=tables_dir,
+        figures_dest_dir_name=figures_dest_dir,
         delete_existing=delete_existing,
     )
