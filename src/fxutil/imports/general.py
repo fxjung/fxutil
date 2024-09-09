@@ -28,4 +28,4 @@ pd.set_option("display.max_columns", 500)
 pd.set_option("display.width", 1000)
 
 from fxutil.plotting import evf, SaveFigure, figax
-from fxutil.common import scinum, get_git_repo_path, minmax, mmr
+from fxutil.common import scinum, get_git_repo_path, minmax, mmr, nixt

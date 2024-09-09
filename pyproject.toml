@@ -20,7 +20,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
-    "black == 24.3.0",
     "pytest",
     "pre-commit",
     "matplotlib",
@@ -36,6 +35,11 @@ dependencies = [
     "typer",
 
 ]
+
+[project.optional-dependencies]
+dev = [
+    "black==24.8.0",
+    ]
 
 [project.urls]
 "Repository" = "https://github.com/fxjung/fxutil"

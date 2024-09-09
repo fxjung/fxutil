@@ -2,6 +2,7 @@ import math as m
 import os
 from pathlib import Path
 from typing import Optional
+from typing import Iterable
 
 import pygit2
 from pympler.asizeof import asizeof
@@ -174,3 +175,41 @@ def mmr(ser):
     """
     min_, max_ = minmax(ser)
     return min_, max_, max_ - min_
+
+
+def nixt(thing: Iterable):
+    """
+    Get the first element of an iterable.
+
+    Parameters
+    ----------
+    thing
+
+    Returns
+    -------
+    First element of the iterable.
+
+    """
+    return next(iter(thing))
+
+
+def thing(which: Optional[str]):
+    """
+    Return a thing.
+
+    (Example data)
+
+    Parameters
+    ----------
+    which
+
+    Returns
+    -------
+
+    """
+    tabular_data = np.c_[10:20, 100:110]
+    which = which or "dataframe"
+    if which in ["dataframe", "pandas"]:
+        return pd.DataFrame(tabular_data, columns=["a", "b"])
+    elif which in ["array", "np", "numpy"]:
+        return tabular_data
