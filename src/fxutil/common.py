@@ -67,6 +67,8 @@ def scinum(
     round_method: str = "round",
     ndigits: int = 2,
     force_mode: Optional[str] = None,
+    suffix=r"\,",
+    thousands_sep="\,",
 ) -> str:
     """
     Return LaTeX-formatted string representation of number in scientific notation.
@@ -83,6 +85,9 @@ def scinum(
         Number of decimal places
     force_mode
         'e', 'f'
+    suffix
+        suffix to append to the number
+
 
     Returns
     -------
@@ -111,8 +116,10 @@ def scinum(
         m_ = round_by_method(a * 10 ** (-e), ndigits=ndigits, round_method=round_method)
         s += rf"{m_:.{ndigits}f}\times 10^{{{e}}}"
     else:
-        s += rf"{round_by_method(a, ndigits=ndigits, round_method=round_method):.{ndigits}f}"
-    s += "\,"  # TODO: should this always be appended??
+        s += rf"{round_by_method(a, ndigits=ndigits, round_method=round_method):_.{ndigits}f}".replace(
+            "_", thousands_sep if thousands_sep else ""
+        )
+    s += suffix
     return s
 
 
