@@ -33,12 +33,13 @@ dependencies = [
     "pympler",
     "pygit2",
     "typer",
-
 ]
 
 [project.optional-dependencies]
 dev = [
     "black==24.8.0",
+    "flake8",
+    "pytest",
     ]
 
 [project.urls]
