@@ -14,6 +14,7 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 from cycler import cycler
 
+
 from fxutil.common import get_git_repo_path
 
 
@@ -58,8 +59,11 @@ class SaveFigure:
         filetypes
         name_str_space_replacement_char
         fig_width_half
+            mm
         fig_width_full
+            mm
         fig_height_max
+            mm
         """
         # TODO: OPACITY!
 
@@ -92,9 +96,9 @@ class SaveFigure:
         self.save_light = save_light
         self.name_str_space_replacement_char = name_str_space_replacement_char
 
-        self.fig_width_half = fig_width_half or 170 / 2 / 25.4
-        self.fig_width_full = fig_width_full or 170 / 25.4
-        self.fig_height_max = fig_height_max or 195 / 25.4
+        self.fig_width_half = (fig_width_half or 170 / 2) / 25.4
+        self.fig_width_full = (fig_width_full or 170) / 25.4
+        self.fig_height_max = (fig_height_max or 195) / 25.4
 
         if self.show_dark:
             plt.style.use(
@@ -113,6 +117,16 @@ class SaveFigure:
                 ]
             )
 
+        try:
+            __IPYTHON__
+            self._in_ipython_session = True
+            from IPython.display import display
+
+            self._display_plot = lambda fig: display(fig)
+        except NameError:
+            self._in_ipython_session = False
+            self._display_plot = lambda fig: plt.show()
+
     def __call__(
         self,
         plot_function: Callable,
@@ -120,8 +134,30 @@ class SaveFigure:
         fig=None,
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
+        left=0,
+        bottom=0,
+        right=1,
+        top=1,
+        w_pad=0.04167 * 25.4,
+        h_pad=0.04167 * 25.4,
+        wspace=0.02,
+        hspace=0.02,
     ):
+        plt.ioff()
+        layout_engine_params = dict(
+            rect=(left, bottom, right - left, top - bottom),
+            w_pad=w_pad / 25.4,
+            h_pad=h_pad / 25.4,
+            wspace=wspace,
+            hspace=hspace,
+        )
+
         plot_function()
+
+        if fig is None:
+            fig = plt.gcf()
+
+        fig.get_layout_engine().set(**layout_engine_params)
 
         styles = {}
 
@@ -147,7 +183,11 @@ class SaveFigure:
                 fig=fig,
                 panel=panel,
                 extra_artists=extra_artists,
+                layout_engine_params=layout_engine_params,
             )
+        plt.ion()
+        fig.canvas.draw()
+        self._display_plot(fig)
 
     def _save_figure(
         self,
@@ -158,17 +198,16 @@ class SaveFigure:
         fig=None,
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
+        layout_engine_params: Optional[dict] = None,
     ):
-        with plt.style.context(style):
+        with plt.style.context(style, after_reset=True):
             plot_function()
 
-            name = (name + self.suffix).replace(
-                " ", self.name_str_space_replacement_char
-            )
             if fig is None:
                 fig = plt.gcf()
 
-            name += self.name_str_space_replacement_char + style_name
+            if layout_engine_params is not None:
+                fig.get_layout_engine().set(**layout_engine_params)
 
             extra_artists = extra_artists or []
 
@@ -217,20 +256,21 @@ class SaveFigure:
             if fig._suptitle is not None:
                 extra_artists.append(fig._suptitle)
 
-            # TODO this still needs to be called beforehand sometimes (in the calling code) WHY??
-            # fig.tight_layout()
+            name = (name + self.suffix).replace(
+                " ", self.name_str_space_replacement_char
+            )
+            name += self.name_str_space_replacement_char + style_name
 
             for ext, plot_dir in self.plot_dirs.items():
                 fig.savefig(
                     plot_dir / f"{name}.{ext}",
-                    # bbox_inches="tight",
                     dpi=self.output_dpi,
                     transparent=self.output_transparency,
                     bbox_extra_artists=extra_artists,
                 )
             plt.close(fig)
 
-    def make_figure(
+    def figax(
         self,
         n_panels=None,
         *,
@@ -238,13 +278,9 @@ class SaveFigure:
         n_cols: int | None = None,
         width_ratios: Sequence[float] = None,
         height_ratios: Sequence[float] = None,
-        hspace: float = 0.4,
-        wspace: float = 0.4,
-        bottom: float = 0.2,
-        top: float = 0.8,
-        left: float = 0.2,
-        right: float = 0.95,
-        panel_labels=None,
+        panel_labels: Optional[bool] = None,
+        width=None,
+        height=None,
     ):
         if n_panels is None:
             n_rows = n_rows or 1
@@ -270,38 +306,35 @@ class SaveFigure:
 
         fig = plt.figure(
             figsize=(
-                self.fig_width_full,
-                min(self.fig_width_full / n_cols, self.fig_height_max),
+                width / 25.4 if width is not None else self.fig_width_full,
+                (
+                    height / 25.4
+                    if height is not None
+                    else min(self.fig_width_full / n_cols, self.fig_height_max)
+                ),
             ),
             dpi=130,
-            # constrained_layout=True, # TODO what's with that?
+            constrained_layout=True,
         )
         width_ratios = width_ratios if width_ratios is not None else [1] * n_cols
-        gs = mpl.gridspec.GridSpec(
+        gs = fig.add_gridspec(
             nrows=n_rows,
             ncols=n_cols,
-            figure=fig,
             width_ratios=width_ratios,
             height_ratios=height_ratios,
-            hspace=hspace,
-            wspace=wspace,
-            bottom=bottom,
-            top=top,
-            left=left,
-            right=right,
         )
-        axs = [fig.add_subplot(gs[i]) for i in range(n_panels)]
+        axs = [*map(fig.add_subplot, gs)]
         if panel_labels:
             for i, ax in enumerate(axs, 97):
                 ax.text(
-                    -0.2,
+                    -0.15,
                     1.1,
                     rf"\textbf{{({chr(i)})}}",
                     transform=ax.transAxes,
                     ha="right",
                     va="bottom",
                 )
-        return fig, axs
+        return fig, axs if len(axs) > 1 else axs[0]
 
 
 solarized_colors = dict(
@@ -395,7 +428,7 @@ def figax(
     fig, ax
 
     """
-    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, layout="constrained", **kwargs)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, layout="compressed", **kwargs)
     return fig, ax
 
 
