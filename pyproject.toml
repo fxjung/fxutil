@@ -33,7 +33,6 @@ dependencies = [
     "pympler",
     "pygit2",
     "typer",
-
 ]
 
 [project.optional-dependencies]
