@@ -8,17 +8,8 @@ Scarcely documented.
 
 Needs Python 3.8 or later.
 
-Either do this:
-
 ```bash
-pip install -U "fxutil @ git+https://github.com/fxjung/fxutil"
-```
-
-or clone the repository etc.:
-```bash
-git clone https://github.com/fxjung/fxutil.git
-cd fxutil
-pip install -e .
+pip install fxutil
 ```
 
 ### Contributing
