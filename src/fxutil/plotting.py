@@ -283,6 +283,30 @@ class SaveFigure:
         width=None,
         height=None,
     ):
+        """
+
+        Parameters
+        ----------
+        n_panels
+            Number of panels to create
+        n_rows
+            Number of rows to squeeze the panels into
+        n_cols
+            Number of columns to squeeze the panels into
+        width_ratios
+        height_ratios
+        panel_labels
+        width
+        height
+
+        Returns
+        -------
+
+        fig
+            Figure
+        axs
+            A single axes or a tuple of multiple axes
+        """
         if n_panels is None:
             n_rows = n_rows or 1
             n_cols = n_cols or 1
