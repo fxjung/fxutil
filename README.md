@@ -1,3 +1,6 @@
+[![Tests](https://github.com/fxjung/fxutil/actions/workflows/test.yml/badge.svg)](https://github.com/fxjung/fxutil/actions/workflows/test.yml)
+[![PyPI](https://github.com/fxjung/fxutil/actions/workflows/release.yml/badge.svg)](https://github.com/fxjung/fxutil/actions/workflows/release.yml)
+
 # f(x)util---A bunch of utilities to do things.
 
 Scarcely documented.
@@ -50,3 +53,4 @@ def draw_plot():
 
 sf(draw_plot, "my cute figure")
 ```
+
