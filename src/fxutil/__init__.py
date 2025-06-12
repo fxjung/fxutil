@@ -7,4 +7,6 @@ from fxutil.common import (
     scinum,
     nixt,
     thing,
+    get_unique_with_bang,
+    bunny,
 )

@@ -231,3 +231,14 @@ def thing(which: Optional[str]):
         return pd.DataFrame(tabular_data, columns=["a", "b"])
     elif which in ["array", "np", "numpy"]:
         return tabular_data
+
+
+def get_unique_with_bang(ser: pd.Series):
+    val = ser.iloc[0]
+    if not all(ser == val):
+        raise ValueError(f"Series not unique: {ser.unique()}")
+    else:
+        return val
+
+
+bunny = get_unique_with_bang
