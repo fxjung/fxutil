@@ -69,6 +69,7 @@ def scinum(
     force_pref: bool = False,
     round_method: str = "round",
     ndigits: int = 2,
+    no_trailing_zeros=True,
     force_mode: Optional[str] = None,
     suffix=r"\,",
     thousands_sep="\,",
@@ -97,9 +98,11 @@ def scinum(
 
     """
 
+    strip_trailing_zeros = lambda s: s.rstrip("0").rstrip(".")
+
     if a == 0:
         s = "0"
-        if ndigits > 0:
+        if ndigits > 0 and not no_trailing_zeros:
             s += "."
             s += "0" * ndigits
         return s
@@ -117,11 +120,16 @@ def scinum(
 
     if (abs(e) > 2 or force_mode == "e") and not force_mode == "f":
         m_ = round_by_method(a * 10 ** (-e), ndigits=ndigits, round_method=round_method)
-        s += rf"{m_:.{ndigits}f}\times 10^{{{e}}}"
+        s += rf"{m_:.{ndigits}f}"
+        if no_trailing_zeros:
+            s = strip_trailing_zeros(s)
+        s += rf"\times 10^{{{e}}}"
     else:
         s += rf"{round_by_method(a, ndigits=ndigits, round_method=round_method):_.{ndigits}f}".replace(
             "_", thousands_sep if thousands_sep else ""
         )
+        if no_trailing_zeros:
+            s = strip_trailing_zeros(s)
     s += suffix
     return s
 
