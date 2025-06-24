@@ -108,7 +108,7 @@ def scinum(
         return s
 
     if m.isinf(a):
-        s = "\infty"
+        s = r"\infty"
         if a > 0 and force_pref:
             s = f"+{s}"
         elif a < 0:
