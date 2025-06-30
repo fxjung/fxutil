@@ -1,4 +1,4 @@
-from fxutil.plotting import SaveFigure, evf, easy_prop_cycle
+from fxutil.plotting import SaveFigure, evf, easy_prop_cycle, figax
 from fxutil.common import (
     fmt_bytes,
     described_size,

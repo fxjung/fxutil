@@ -27,5 +27,15 @@ pd.set_option("display.max_rows", 500)
 pd.set_option("display.max_columns", 500)
 pd.set_option("display.width", 1000)
 
-from fxutil.plotting import evf, SaveFigure, figax
-from fxutil.common import scinum, get_git_repo_path, minmax, mmr, nixt
+from fxutil.plotting import SaveFigure, evf, easy_prop_cycle, figax
+from fxutil.common import (
+    fmt_bytes,
+    described_size,
+    get_git_repo_path,
+    round_by_method,
+    scinum,
+    nixt,
+    thing,
+    get_unique_with_bang,
+    bunny,
+)
