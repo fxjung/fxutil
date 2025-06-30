@@ -233,12 +233,24 @@ def thing(which: Optional[str]):
         return tabular_data
 
 
-def get_unique_with_bang(ser: pd.Series):
-    val = ser.iloc[0]
-    if not all(ser == val):
-        raise ValueError(f"Series not unique: {ser.unique()}")
+def get_unique_with_bang(iterable):
+    if isinstance(iterable, (pd.Series, pd.DataFrame)):
+        ser = iterable.squeeze()
+        val = iterable.iloc[0].squeeze()
+        if not all(ser == val):
+            raise ValueError(
+                f"Series not unique. Unique values: {', '.join(map(str, ser.unique()))}"
+            )
     else:
-        return val
+        l = [*iterable]
+        val = l[0]
+        if not all(x == val for x in l):
+            raise ValueError(
+                f"{type(iterable).__name__} not unique. Unique values: "
+                f"{', '.join(map(str, set(iterable)))}"
+            )
+
+    return val
 
 
 bunny = get_unique_with_bang
