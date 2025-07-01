@@ -38,4 +38,6 @@ from fxutil.common import (
     thing,
     get_unique_with_bang,
     bunny,
+    minmax,
+    mmr,
 )
