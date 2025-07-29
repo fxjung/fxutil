@@ -282,6 +282,7 @@ class SaveFigure:
         panel_labels: Optional[bool] = None,
         width=None,
         height=None,
+        dpi=130,
     ):
         """
 
@@ -338,7 +339,7 @@ class SaveFigure:
                     else min(self.fig_width_full / n_cols, self.fig_height_max)
                 ),
             ),
-            dpi=130,
+            dpi=dpi,
             constrained_layout=True,
         )
         width_ratios = width_ratios if width_ratios is not None else [1] * n_cols
