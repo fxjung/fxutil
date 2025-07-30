@@ -115,7 +115,7 @@ def scinum(
             s = f"-{s}"
         return s
 
-    s = rf"{'' if not force_pref else ('+' if a>= 0 else '')}"
+    s = rf"{'' if not force_pref else ('+' if a >= 0 else '')}"
     e = m.floor(m.log10(abs(a)))
 
     if (abs(e) > 2 or force_mode == "e") and not force_mode == "f":

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import warnings
 
 import matplotlib as mpl
@@ -17,6 +18,8 @@ from cycler import cycler
 
 from fxutil.common import get_git_repo_path
 
+log = logging.getLogger(__name__)
+
 
 class SaveFigure:
     """
@@ -24,6 +27,20 @@ class SaveFigure:
     """
 
     _base_plot_dir: Path
+    _in_ipython_session: bool | None = None
+
+    styles: dict[str, list[str]] = {
+        "dark": [
+            "dark_background",
+            "fxutil.mplstyles.tex",
+            "fxutil.mplstyles.dark",
+        ],
+        "light": [
+            "default",
+            "fxutil.mplstyles.tex",
+            "fxutil.mplstyles.light",
+        ],
+    }
 
     def __init__(
         self,
@@ -32,14 +49,22 @@ class SaveFigure:
         output_dpi: int = 250,
         output_transparency: bool = True,
         make_tex_safe: bool = True,
-        show_dark: bool = True,
-        save_dark: bool = True,
-        save_light: bool = True,
+        interactive_mode: str | None = "dark",
+        use_styles: list[str] | None = None,
         filetypes=None,
         name_str_space_replacement_char: str = "-",
         fig_width_half: float = None,
         fig_width_full: float = None,
         fig_height_max: float = None,
+        # TODO what about these guys?
+        left=0,
+        bottom=0,
+        right=1,
+        top=1,
+        w_pad=0.04167 * 25.4,
+        h_pad=0.04167 * 25.4,
+        wspace=0.02,
+        hspace=0.02,
     ):
         """
         Initialize a SaveFigure object.
@@ -55,7 +80,11 @@ class SaveFigure:
         output_dpi
         output_transparency
         make_tex_safe
-        show_dark
+        interactive_mode
+            Valid values are styles such as "dark", "light", and None to not show anything.
+        use_styles
+            Styles to save plots in. Valid values are at least "dark" and "light".
+            ``None`` saves plots in all availabel styles.
         save_dark
         save_light
         filetypes
@@ -86,42 +115,33 @@ class SaveFigure:
         self.output_transparency = output_transparency
         self.suffix = suffix
         self.make_tex_safe = make_tex_safe
-        self.show_dark = show_dark
-        self.save_dark = save_dark
-        self.save_light = save_light
         self.name_str_space_replacement_char = name_str_space_replacement_char
+        self.use_styles = use_styles or [*self.styles.keys()]
+        self.interactive_mode = interactive_mode
 
         self.fig_width_half = (fig_width_half or 170 / 2) / 25.4
         self.fig_width_full = (fig_width_full or 170) / 25.4
         self.fig_height_max = (fig_height_max or 195) / 25.4
 
-        if self.show_dark:
-            plt.style.use(
-                [
-                    "dark_background",
-                    "fxutil.mplstyles.tex",
-                    "fxutil.mplstyles.dark",
-                ]
-            )
-        else:
-            plt.style.use(
-                [
-                    "default",
-                    "fxutil.mplstyles.tex",
-                    "fxutil.mplstyles.light",
-                ]
-            )
-
         # stolen from https://discourse.jupyter.org/t/find-out-if-my-code-runs-inside-a-notebook-or-jupyter-lab/6935/7
         try:
             __IPYTHON__
             self._in_ipython_session = True
+
             from IPython.display import display
 
             self._display_plot = lambda fig: display(fig)
         except NameError:
             self._in_ipython_session = False
             self._display_plot = lambda fig: plt.show()
+
+        self.layout_engine_params = dict(
+            rect=(left, bottom, right - left, top - bottom),
+            w_pad=w_pad / 25.4,
+            h_pad=h_pad / 25.4,
+            wspace=wspace,
+            hspace=hspace,
+        )
 
     def __call__(
         self,
@@ -130,48 +150,11 @@ class SaveFigure:
         fig=None,
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
-        left=0,
-        bottom=0,
-        right=1,
-        top=1,
-        w_pad=0.04167 * 25.4,
-        h_pad=0.04167 * 25.4,
-        wspace=0.02,
-        hspace=0.02,
         filetypes=None,
     ):
-        plt.ioff()
-        layout_engine_params = dict(
-            rect=(left, bottom, right - left, top - bottom),
-            w_pad=w_pad / 25.4,
-            h_pad=h_pad / 25.4,
-            wspace=wspace,
-            hspace=hspace,
-        )
-
-        plot_function()
-
-        if fig is None:
-            fig = plt.gcf()
-
-        fig.get_layout_engine().set(**layout_engine_params)
-
-        styles = {}
-
-        if self.save_dark:
-            styles["dark"] = [
-                "dark_background",
-                "fxutil.mplstyles.tex",
-                "fxutil.mplstyles.dark",
-            ]
-        if self.save_light:
-            styles["light"] = [
-                "default",
-                "fxutil.mplstyles.tex",
-                "fxutil.mplstyles.light",
-            ]
-
-        for style_name, style in styles.items():
+        for style_name in self.use_styles:
+            style = self.styles[style_name]
+            log.info(f"Saving figure in {style_name} style...")
             self._save_figure(
                 plot_function=plot_function,
                 style_name=style_name,
@@ -180,12 +163,24 @@ class SaveFigure:
                 fig=fig,
                 panel=panel,
                 extra_artists=extra_artists,
-                layout_engine_params=layout_engine_params,
+                layout_engine_params=self.layout_engine_params,
                 filetypes=filetypes,
             )
-        plt.ion()
-        fig.canvas.draw()
-        self._display_plot(fig)
+
+        if (style_name := self.interactive_mode) is not None:
+            with plt.style.context(self.styles[style_name], after_reset=True):
+                plot_function()
+                fig = plt.gcf()
+                # fig.canvas.draw()  # Does not seem to be necessary
+                if style_name == "dark" and not self._in_ipython_session:
+                    if (backend := mpl.get_backend()) == "qtagg":
+                        fig.canvas.manager.window.setStyleSheet(
+                            "background-color: black;"
+                        )
+                    elif backend == "tkagg":
+                        fig.canvas.manager.window.config(bg="black")
+                self._display_plot(fig)
+                plt.close(fig)
 
     def _save_figure(
         self,

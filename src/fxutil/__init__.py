@@ -1,3 +1,14 @@
+import logging
+
+logging.getLogger("").setLevel("INFO")
+
+formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
+
+ch = logging.StreamHandler()
+ch.setFormatter(formatter)
+logging.getLogger("").addHandler(ch)
+
+
 from fxutil.plotting import SaveFigure, evf, easy_prop_cycle, figax
 from fxutil.common import (
     fmt_bytes,
