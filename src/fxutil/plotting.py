@@ -367,6 +367,14 @@ class SaveFigure:
         plot_dir.mkdir(exist_ok=True, parents=True)
         return plot_dir
 
+    def _parse_filetypes(self, filetypes: str | list[str] | None) -> list[str]:
+        if not filetypes:
+            filetypes = ["pdf", "png"]
+        elif isinstance(filetypes, str):
+            filetypes = [filetypes]
+
+        return filetypes
+
 
 solarized_colors = dict(
     base03="#002b36",
