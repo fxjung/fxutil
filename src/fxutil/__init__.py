@@ -1,6 +1,6 @@
 import logging
 
-logging.getLogger("").setLevel("INFO")
+logging.getLogger("").setLevel(logging.WARNING)
 
 formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 
