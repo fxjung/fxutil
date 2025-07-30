@@ -80,11 +80,7 @@ class SaveFigure:
 
         self._base_plot_dir = plot_dir
 
-        if not filetypes:
-            filetypes = ["pdf", "png"]
-        elif isinstance(filetypes, str):
-            filetypes = [filetypes]
-        self.filetypes = filetypes
+        self.filetypes = self._parse_filetypes(filetypes)
 
         self.output_dpi = output_dpi
         self.output_transparency = output_transparency
@@ -201,7 +197,7 @@ class SaveFigure:
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
         layout_engine_params: Optional[dict] = None,
-        filetypes: Optional[list[str]] = None,
+        filetypes=None,
     ):
         with plt.style.context(style, after_reset=True):
             plot_function()
@@ -264,7 +260,9 @@ class SaveFigure:
             )
             name += self.name_str_space_replacement_char + style_name
 
-            for ext in filetypes or self.filetypes:
+            for ext in (
+                self._parse_filetypes(filetypes) if filetypes else self.filetypes
+            ):
                 fig.savefig(
                     self._get_plot_dir(ext) / f"{name}.{ext}",
                     dpi=self.output_dpi,
