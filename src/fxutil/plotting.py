@@ -23,6 +23,8 @@ class SaveFigure:
     A class to save figures in different styles and formats.
     """
 
+    _base_plot_dir: Path
+
     def __init__(
         self,
         plot_dir: str | Path = None,
@@ -57,6 +59,7 @@ class SaveFigure:
         save_dark
         save_light
         filetypes
+            Filetypes to save plots as. Defaults to ["pdf", "png"]
         name_str_space_replacement_char
         fig_width_half
             mm
@@ -75,17 +78,13 @@ class SaveFigure:
             except ValueError:
                 plot_dir = Path("./figures")
 
-        self.plot_dirs = {}
-        if filetypes is None:
+        self._base_plot_dir = plot_dir
+
+        if not filetypes:
             filetypes = ["pdf", "png"]
         elif isinstance(filetypes, str):
             filetypes = [filetypes]
-        if len(filetypes) == 1:
-            self.plot_dirs[filetypes[0]] = plot_dir
-        else:
-            for ext in filetypes or ["pdf", "png"]:
-                self.plot_dirs[ext] = plot_dir / ext
-                self.plot_dirs[ext].mkdir(exist_ok=True, parents=True)
+        self.filetypes = filetypes
 
         self.output_dpi = output_dpi
         self.output_transparency = output_transparency
@@ -143,6 +142,7 @@ class SaveFigure:
         h_pad=0.04167 * 25.4,
         wspace=0.02,
         hspace=0.02,
+        filetypes=None,
     ):
         plt.ioff()
         layout_engine_params = dict(
@@ -185,6 +185,7 @@ class SaveFigure:
                 panel=panel,
                 extra_artists=extra_artists,
                 layout_engine_params=layout_engine_params,
+                filetypes=filetypes,
             )
         plt.ion()
         fig.canvas.draw()
@@ -200,6 +201,7 @@ class SaveFigure:
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
         layout_engine_params: Optional[dict] = None,
+        filetypes: Optional[list[str]] = None,
     ):
         with plt.style.context(style, after_reset=True):
             plot_function()
@@ -262,9 +264,9 @@ class SaveFigure:
             )
             name += self.name_str_space_replacement_char + style_name
 
-            for ext, plot_dir in self.plot_dirs.items():
+            for ext in filetypes or self.filetypes:
                 fig.savefig(
-                    plot_dir / f"{name}.{ext}",
+                    self._get_plot_dir(ext) / f"{name}.{ext}",
                     dpi=self.output_dpi,
                     transparent=self.output_transparency,
                     bbox_extra_artists=extra_artists,
@@ -282,7 +284,6 @@ class SaveFigure:
         panel_labels: Optional[bool] = None,
         width=None,
         height=None,
-        dpi=130,
     ):
         """
 
@@ -339,7 +340,7 @@ class SaveFigure:
                     else min(self.fig_width_full / n_cols, self.fig_height_max)
                 ),
             ),
-            dpi=dpi,
+            dpi=self.output_dpi,
             constrained_layout=True,
         )
         width_ratios = width_ratios if width_ratios is not None else [1] * n_cols
@@ -361,6 +362,12 @@ class SaveFigure:
                     va="bottom",
                 )
         return fig, axs if len(axs) > 1 else axs[0]
+
+    @ft.cache
+    def _get_plot_dir(self, filetype: str):
+        plot_dir = self._base_plot_dir / filetype
+        plot_dir.mkdir(exist_ok=True, parents=True)
+        return plot_dir
 
 
 solarized_colors = dict(
