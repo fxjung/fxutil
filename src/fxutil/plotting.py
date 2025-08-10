@@ -9,6 +9,7 @@ import itertools as it
 import functools as ft
 import numpy as np
 import operator as op
+import matplotlib.colors as mpc
 
 from typing import Optional, Callable, List
 from collections.abc import Iterable, Sequence
@@ -287,6 +288,7 @@ class SaveFigure:
             )
 
         if (style_name := self.interactive_mode) is not None:
+            self.register_contrast_color(style_name)
             with plt.style.context(self.styles[style_name], after_reset=True):
                 plot_function()
                 fig = plt.gcf()
@@ -313,6 +315,7 @@ class SaveFigure:
         layout_engine_params: Optional[dict] = None,
         filetypes=None,
     ):
+        self.register_contrast_color(style_name)
         with plt.style.context(style, after_reset=True):
             plot_function()
 
@@ -384,6 +387,18 @@ class SaveFigure:
                     bbox_extra_artists=extra_artists,
                 )
             plt.close(fig)
+
+    @staticmethod
+    def register_contrast_color(style_name: str):
+        match style_name:
+            case "light":
+                contrast = "#000000"  # can't be named color
+            case "dark":
+                contrast = "#ffffff"  # can't be named color
+            case _:
+                raise ValueError(f"Invalid style name {style_name}")
+
+        mpc._colors_full_map["contrast"] = contrast
 
     def figax(
         self,

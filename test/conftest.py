@@ -16,6 +16,7 @@ def plot_fn_factory():
                 fig, ax = sf.figax()
             for b in [1, 2, 3]:
                 ax.plot(*evf(np.r_[0:1:300j], lambda x: x**b))
+                ax.axvline(0.5, color="contrast")
 
             if latex:
                 ax.set_xlabel(r"$x$")
