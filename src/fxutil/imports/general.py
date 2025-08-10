@@ -27,7 +27,7 @@ pd.set_option("display.max_rows", 500)
 pd.set_option("display.max_columns", 500)
 pd.set_option("display.width", 1000)
 
-from fxutil.plotting import SaveFigure, evf, easy_prop_cycle, figax
+from fxutil.plotting import SaveFigure, evf, easy_prop_cycle, figax, pad_range
 from fxutil.common import (
     fmt_bytes,
     described_size,
