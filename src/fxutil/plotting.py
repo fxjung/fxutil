@@ -141,6 +141,36 @@ def set_aspect(ratio=3 / 4, axs=None) -> None:
         ax.set_aspect(1 / ax.get_data_ratio() * ratio)
 
 
+def pad_range(l, r, pad=0.03):
+    """
+    Pad plots ranges to achieve equal-distace padding on both sides.
+
+    Use like
+
+    ```python
+        ax.set_xlim(*pad_range(*minmax(values)))
+    ```
+
+    Parameters
+    ----------
+    l
+        Left unpadded bound
+    r
+        Right unpadded bound
+    pad
+        Padding to  be added on both sides as a fraction.
+
+    Returns
+    -------
+    bounds
+        Tuple of left and right bounds
+
+    """
+    d = r - l
+    p = d / (1 / pad - 2)
+    return l - p, r + p
+
+
 class SaveFigure:
     """
     A class to save figures in different styles and formats.
@@ -393,12 +423,15 @@ class SaveFigure:
         match style_name:
             case "light":
                 contrast = "#000000"  # can't be named color
+                acontrast = "#ffffff"  # can't be named color
             case "dark":
                 contrast = "#ffffff"  # can't be named color
+                acontrast = "#000000"  # can't be named color
             case _:
                 raise ValueError(f"Invalid style name {style_name}")
 
         mpc._colors_full_map["contrast"] = contrast
+        mpc._colors_full_map["acontrast"] = acontrast
 
     def figax(
         self,
