@@ -141,7 +141,7 @@ def set_aspect(ratio=3 / 4, axs=None) -> None:
         ax.set_aspect(1 / ax.get_data_ratio() * ratio)
 
 
-def pad_range(l, r, pad=0.03):
+def pad_range(l, r, pad=0.03, log=False):
     """
     Pad plots ranges to achieve equal-distace padding on both sides.
 
@@ -159,6 +159,8 @@ def pad_range(l, r, pad=0.03):
         Right unpadded bound
     pad
         Padding to  be added on both sides as a fraction.
+    log
+        If True, assume log scale
 
     Returns
     -------
@@ -166,9 +168,21 @@ def pad_range(l, r, pad=0.03):
         Tuple of left and right bounds
 
     """
+    if log:
+        l = np.log(l)
+        r = np.log(r)
+
     d = r - l
     p = d / (1 / pad - 2)
-    return l - p, r + p
+
+    lp = l - p
+    rp = r + p
+
+    if log:
+        lp = np.exp(lp)
+        rp = np.exp(rp)
+
+    return lp, rp
 
 
 class SaveFigure:
