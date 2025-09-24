@@ -229,6 +229,7 @@ class SaveFigure:
         h_pad=0.04167 * 25.4,
         wspace=0.02,
         hspace=0.02,
+        layout: str | mpl.layout_engine.LayoutEngine = "constrained",
     ):
         """
         Initialize a SaveFigure object.
@@ -286,6 +287,8 @@ class SaveFigure:
         self.fig_width_half = (fig_width_half or 170 / 2) / 25.4
         self.fig_width_full = (fig_width_full or 170) / 25.4
         self.fig_height_max = (fig_height_max or 195) / 25.4
+
+        self.layout = layout
 
         # stolen from https://discourse.jupyter.org/t/find-out-if-my-code-runs-inside-a-notebook-or-jupyter-lab/6935/7
         try:
@@ -367,6 +370,7 @@ class SaveFigure:
                 fig = plt.gcf()
 
             if layout_engine_params is not None:
+                fig.set_layout_engine(self.layout)
                 fig.get_layout_engine().set(**layout_engine_params)
 
             extra_artists = extra_artists or []
