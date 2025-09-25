@@ -369,9 +369,9 @@ class SaveFigure:
             if fig is None:
                 fig = plt.gcf()
 
-            if layout_engine_params is not None:
-                fig.set_layout_engine(self.layout)
-                fig.get_layout_engine().set(**layout_engine_params)
+            # if layout_engine_params is not None:
+            #     fig.set_layout_engine(self.layout)
+            #     fig.get_layout_engine().set(**layout_engine_params)
 
             extra_artists = extra_artists or []
 
@@ -461,7 +461,7 @@ class SaveFigure:
         right=None,
         top=None,
         bottom=None,
-        wspace=None,
+        wspace=None,  # FIXME are these actually used, or are we obeying the layout_engine's as set through the __init__ kwargs?
         hspace=None,
         width_ratios: Sequence[float] = None,
         height_ratios: Sequence[float] = None,
