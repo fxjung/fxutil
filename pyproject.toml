@@ -12,7 +12,7 @@ license = "MIT"
 description = """Some handy tools..."""
 keywords = ["utilities", "python", "science"]
 readme = "README.md"
-requires-python=">=3.8"
+requires-python=">=3.10"
 classifiers = [
     "Intended Audience :: Science/Research",
     "Natural Language :: English",

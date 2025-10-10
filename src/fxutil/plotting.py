@@ -11,7 +11,7 @@ import numpy as np
 import operator as op
 import matplotlib.colors as mpc
 
-from typing import Optional, Callable, List
+from typing import Optional, Callable
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 from cycler import cycler
@@ -21,11 +21,23 @@ from fxutil.common import get_git_repo_path
 
 log = logging.getLogger(__name__)
 
-evf = lambda S, f, **arg: (S, f(S, **arg))
-"""
-Use like
-`ax.plot(*evf(np.r_[0:1:50j], lambda x, c: x ** 2 + c, c=5))`
-"""
+
+def evf(S, f, **kwargs):
+    """
+    Use like
+    `ax.plot(*evf(np.r_[0:1:50j], lambda x, c: x ** 2 + c, c=5))`
+
+    Parameters
+    ----------
+    S
+        Space
+    f
+        function
+    **kwargs
+        Additional function args
+    """
+    return S, f(S, **kwargs)
+
 
 solarized_colors = dict(
     base03="#002b36",
@@ -141,9 +153,9 @@ def set_aspect(ratio=3 / 4, axs=None) -> None:
         ax.set_aspect(1 / ax.get_data_ratio() * ratio)
 
 
-def pad_range(l, r, pad=0.03, log=False):
+def pad_range(left, right, pad=0.03, log=False):
     """
-    Pad plots ranges to achieve equal-distace padding on both sides.
+    Pad plots ranges to achieve equal-distance padding on both sides.
 
     Use like
 
@@ -153,9 +165,9 @@ def pad_range(l, r, pad=0.03, log=False):
 
     Parameters
     ----------
-    l
+    left
         Left unpadded bound
-    r
+    right
         Right unpadded bound
     pad
         Padding to  be added on both sides as a fraction.
@@ -169,14 +181,14 @@ def pad_range(l, r, pad=0.03, log=False):
 
     """
     if log:
-        l = np.log(l)
-        r = np.log(r)
+        left = np.log(left)
+        right = np.log(right)
 
-    d = r - l
+    d = right - left
     p = d / (1 / pad - 2)
 
-    lp = l - p
-    rp = r + p
+    lp = left - p
+    rp = right + p
 
     if log:
         lp = np.exp(lp)
@@ -230,6 +242,7 @@ class SaveFigure:
         wspace=0.02,
         hspace=0.02,
         layout: str | mpl.layout_engine.LayoutEngine = "constrained",
+        subfolder_per_filetype=False,
     ):
         """
         Initialize a SaveFigure object.
@@ -261,6 +274,8 @@ class SaveFigure:
             mm
         fig_height_max
             mm
+        subfolder_per_filetype
+            If True, create a subfolder for each filetype in the plot_dir.
         """
         # TODO: OPACITY!
 
@@ -275,6 +290,7 @@ class SaveFigure:
         self._base_plot_dir = plot_dir
 
         self.filetypes = self._parse_filetypes(filetypes)
+        self.subfolder_per_filetype = subfolder_per_filetype
 
         self.output_dpi = output_dpi
         self.output_transparency = output_transparency
@@ -555,7 +571,9 @@ class SaveFigure:
 
     @ft.cache
     def _get_plot_dir(self, filetype: str):
-        plot_dir = self._base_plot_dir / filetype
+        plot_dir = self._base_plot_dir
+        if self.subfolder_per_filetype:
+            plot_dir /= filetype
         plot_dir.mkdir(exist_ok=True, parents=True)
         return plot_dir
 
