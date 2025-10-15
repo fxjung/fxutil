@@ -11,31 +11,34 @@ from typing import Iterable
 from pympler.asizeof import asizeof
 
 
-fmt_bytes = lambda s: (
-    lambda s, k: (s * 2 ** (-k * 10), ["B", "KiB", "MiB", "GiB", "TiB", "PiB"][k])
-)(s, round(m.log(s) / m.log(2) / 10))
+def fmt_bytes(s):
+    return (
+        lambda s, k: (s * 2 ** (-k * 10), ["B", "KiB", "MiB", "GiB", "TiB", "PiB"][k])
+    )(s, round(m.log(s) / m.log(2) / 10))
 
-described_size = lambda desc, obj: (
-    lambda desc, fmtd: f"{desc}{fmtd[0]:.2f} {fmtd[1]}"
-)(desc, fmt_bytes(asizeof(obj)))
-"""
-Use like
-```py
->>> print(described_size("my huge-ass object's size: ", my_huge_ass_object))
-my huge-ass object's size: 5.32 TiB
-```
 
-Parameters
-----------
-desc : str
-    string to print along
-obj : object
-    thing to get the size of
+def described_size(desc, obj):
+    """
+    Use like
+    ```py
+    >>> print(described_size("my huge-ass object's size: ", my_huge_ass_object))
+    my huge-ass object's size: 5.32 TiB
+    ```
 
-Returns
--------
-str
-"""
+    Parameters
+    ----------
+    desc : str
+        string to print along
+    obj : object
+        thing to get the size of
+
+    Returns
+    -------
+    str
+    """
+    return (lambda desc, fmtd: f"{desc}{fmtd[0]:.2f} {fmtd[1]}")(
+        desc, fmt_bytes(asizeof(obj))
+    )
 
 
 def round_by_method(x, ndigits, round_method: str = "round"):
@@ -72,7 +75,7 @@ def scinum(
     no_trailing_zeros=True,
     force_mode: Optional[str] = None,
     suffix=r"\,",
-    thousands_sep="\,",
+    thousands_sep=r"\,",
 ) -> str:
     """
     Return LaTeX-formatted string representation of number in scientific notation.
@@ -98,7 +101,8 @@ def scinum(
 
     """
 
-    strip_trailing_zeros = lambda s: s.rstrip("0").rstrip(".")
+    def strip_trailing_zeros(s):
+        return s.rstrip("0").rstrip(".")
 
     if a == 0:
         s = "0"
@@ -110,9 +114,9 @@ def scinum(
     if m.isinf(a):
         s = r"\infty"
         if a > 0 and force_pref:
-            s = f"+{s}"
+            s = rf"+{s}"
         elif a < 0:
-            s = f"-{s}"
+            s = rf"-{s}"
         return s
 
     s = rf"{'' if not force_pref else ('+' if a >= 0 else '')}"
@@ -242,9 +246,9 @@ def get_unique_with_bang(iterable):
                 f"Series not unique. Unique values: {', '.join(map(str, ser.unique()))}"
             )
     else:
-        l = [*iterable]
-        val = l[0]
-        if not all(x == val for x in l):
+        left = [*iterable]
+        val = left[0]
+        if not all(x == val for x in left):
             raise ValueError(
                 f"{type(iterable).__name__} not unique. Unique values: "
                 f"{', '.join(map(str, set(iterable)))}"

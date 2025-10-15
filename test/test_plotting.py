@@ -1,16 +1,13 @@
 import pytest
 
-from matplotlib import pyplot as plt
-import numpy as np
 import itertools as it
 
-from fxutil import evf
-from fxutil.plotting import SaveFigure, figax
+from fxutil.plotting import SaveFigure
 
 
 @pytest.mark.parametrize("latex,gridspec", it.product(*[[False, True]] * 2))
 def test_basic_plotting(latex, gridspec, tmpdir, plot_fn_factory):
-    sf = SaveFigure(tmpdir, interactive_mode=None)
+    sf = SaveFigure(tmpdir, interactive_mode=None, subfolder_per_filetype=True)
     if gridspec:
         plot = plot_fn_factory(latex=latex, sf=sf)
     else:
