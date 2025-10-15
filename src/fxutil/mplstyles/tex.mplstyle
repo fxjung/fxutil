@@ -16,6 +16,8 @@ font.serif: Computer Modern Serif
 
 xtick.direction: in
 ytick.direction: in
+xtick.top: True
+ytick.right: True
 
 lines.solid_capstyle: round
 lines.dash_capstyle: round
