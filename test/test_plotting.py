@@ -11,7 +11,7 @@ def test_basic_plotting(latex, gridspec, tmpdir, plot_fn_factory):
         tmpdir,
         interactive_mode=None,
         subfolder_per_filetype=True,
-        fig_width_full=100,
+        width=100,
         output_dpi=300,
     )
     if gridspec:

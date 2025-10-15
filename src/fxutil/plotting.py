@@ -123,7 +123,7 @@ def figax(
     fig, ax
 
     """
-    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, layout="compressed", **kwargs)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, layout="constrained", **kwargs)
     return fig, ax
 
 
@@ -229,19 +229,16 @@ class SaveFigure:
         use_styles: list[str] | None = None,
         filetypes=None,
         name_str_space_replacement_char: str = "-",
-        fig_width_half: float = None,
-        fig_width_full: float = None,
-        fig_height_max: float = None,
+        width: float = None,
         # TODO what about these guys?
         left=0,
         bottom=0,
         right=1,
         top=1,
-        w_pad=0.04167 * 25.4,
-        h_pad=0.04167 * 25.4,
+        w_pad=4,
+        h_pad=4,
         wspace=0.02,
         hspace=0.02,
-        layout: str | mpl.layout_engine.LayoutEngine = "constrained",
         subfolder_per_filetype=False,
     ):
         """
@@ -268,11 +265,7 @@ class SaveFigure:
         filetypes
             Filetypes to save plots as. Defaults to ["pdf", "png"]
         name_str_space_replacement_char
-        fig_width_half
-            mm
-        fig_width_full
-            mm
-        fig_height_max
+        width
             mm
         subfolder_per_filetype
             If True, create a subfolder for each filetype in the plot_dir.
@@ -300,11 +293,7 @@ class SaveFigure:
         self.use_styles = use_styles or [*self.styles.keys()]
         self.interactive_mode = interactive_mode
 
-        self.fig_width_half = (fig_width_half or 170 / 2) / 25.4
-        self.fig_width_full = (fig_width_full or 170) / 25.4
-        self.fig_height_max = (fig_height_max or 195) / 25.4
-
-        self.layout = layout
+        self.fig_width = width or 170
 
         # stolen from https://discourse.jupyter.org/t/find-out-if-my-code-runs-inside-a-notebook-or-jupyter-lab/6935/7
         try:
@@ -385,9 +374,9 @@ class SaveFigure:
             if fig is None:
                 fig = plt.gcf()
 
-            # if layout_engine_params is not None:
-            #     fig.set_layout_engine(self.layout)
-            #     fig.get_layout_engine().set(**layout_engine_params)
+            if layout_engine_params is not None:
+                fig.set_layout_engine("constrained")
+                fig.get_layout_engine().set(**layout_engine_params)
 
             extra_artists = extra_artists or []
 
@@ -531,15 +520,14 @@ class SaveFigure:
         if panel_labels is None:
             panel_labels = n_rows * n_cols > 1
 
+        width_mm = width or self.fig_width
+        height_mm = height or width_mm / n_cols * n_rows * 3 / 4
+
+        width_in = width_mm / 25.4
+        height_in = height_mm / 25.4
+
         fig = plt.figure(
-            figsize=(
-                width / 25.4 if width is not None else self.fig_width_full,
-                (
-                    height / 25.4
-                    if height is not None
-                    else min(self.fig_width_full / n_cols, self.fig_height_max)
-                ),
-            ),
+            figsize=(width_in, height_in),
             dpi=self.output_dpi,
             constrained_layout=True,
         )
