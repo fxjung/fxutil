@@ -15,8 +15,8 @@ def plot_fn_factory():
             else:
                 fig, ax = sf.figax()
             for b in [1, 2, 3]:
-                ax.plot(*evf(np.r_[0:1:300j], lambda x: x**b))
-                ax.axvline(0.5, color="contrast")
+                ax.plot(*evf(np.r_[0:1:300j], lambda x: x**b), label="curve")
+                ax.axvline(0.5, color="contrast", label=r"line $x=0.5$")
 
             if latex:
                 ax.set_xlabel(r"$x$")
@@ -24,6 +24,8 @@ def plot_fn_factory():
             else:
                 ax.set_xlabel("x")
                 ax.set_ylabel("y")
+
+            ax.legend(loc=2)
 
         return _plot
 

@@ -7,7 +7,13 @@ from fxutil.plotting import SaveFigure
 
 @pytest.mark.parametrize("latex,gridspec", it.product(*[[False, True]] * 2))
 def test_basic_plotting(latex, gridspec, tmpdir, plot_fn_factory):
-    sf = SaveFigure(tmpdir, interactive_mode=None, subfolder_per_filetype=True)
+    sf = SaveFigure(
+        tmpdir,
+        interactive_mode=None,
+        subfolder_per_filetype=True,
+        fig_width_full=100,
+        output_dpi=300,
+    )
     if gridspec:
         plot = plot_fn_factory(latex=latex, sf=sf)
     else:

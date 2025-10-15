@@ -2,12 +2,12 @@ text.usetex: True
 text.latex.preamble: \usepackage{commath} \usepackage{amsfonts} \usepackage{lmodern} %\usepackage{cmbright}
 pdf.fonttype :42
 
-font.size: 8         # controls default text sizes
-axes.titlesize: 8    # fontsize of the axes title
-axes.labelsize: 8    # fontsize of the x and y labels
-xtick.labelsize: 8   # fontsize of the tick labels
-ytick.labelsize: 8   # fontsize of the tick labels
-legend.fontsize: 8   # legend fontsize
+font.size: 10         # controls default text sizes
+axes.titlesize: 10    # fontsize of the axes title
+axes.labelsize: 10    # fontsize of the x and y labels
+xtick.labelsize: 10   # fontsize of the tick labels
+ytick.labelsize: 10   # fontsize of the tick labels
+legend.fontsize: 10   # legend fontsize
 figure.titlesize: 10  # fontsize of the figure title
 
 font.family: sans-serif
