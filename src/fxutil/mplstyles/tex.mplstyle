@@ -18,3 +18,4 @@ xtick.direction: in
 ytick.direction: in
 
 lines.solid_capstyle: round
+lines.dash_capstyle: round
