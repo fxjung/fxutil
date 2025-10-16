@@ -225,6 +225,7 @@ class SaveFigure:
         plot_dir: str | Path = None,
         suffix: str = "",
         output_dpi: int = 250,
+        display_dpi: int = 96,
         output_transparency: bool = True,
         make_tex_safe: bool = True,
         interactive_mode: str | None = "dark",
@@ -288,6 +289,7 @@ class SaveFigure:
         self.subfolder_per_filetype = subfolder_per_filetype
 
         self.output_dpi = output_dpi
+        self.display_dpi = display_dpi
         self.output_transparency = output_transparency
         self.suffix = suffix
         self.make_tex_safe = make_tex_safe
@@ -358,6 +360,7 @@ class SaveFigure:
             with plt.style.context(self.styles[style_name], after_reset=True):
                 plot_function()
                 fig = plt.gcf()
+                fig.set_dpi(self.display_dpi)
                 # fig.canvas.draw()  # Does not seem to be necessary
                 if style_name == "dark" and not self._in_ipython_session:
                     if (backend := mpl.get_backend()) == "qtagg":
