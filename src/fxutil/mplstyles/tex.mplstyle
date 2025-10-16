@@ -11,7 +11,7 @@ legend.fontsize: 10   # legend fontsize
 figure.titlesize: 10  # fontsize of the figure title
 
 font.family: serif
-font.sans-serif: DejaVu Sans, Bitstream Vera Sans, Computer Modern Sans Serif, Lucida Grande, Verdana, Geneva, Lucid, Arial, Helvetica, Avant Garde, sans-serif
+font.sans-serif: Computer Modern Sans Serif
 font.serif: Computer Modern Serif
 
 xtick.direction: in
@@ -20,4 +20,3 @@ xtick.top: True
 ytick.right: True
 
 lines.solid_capstyle: round
-lines.dash_capstyle: round

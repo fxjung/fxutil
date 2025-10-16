@@ -1,7 +1,4 @@
-from __future__ import annotations
-
 import re
-import json
 import shutil
 import subprocess
 
@@ -95,7 +92,7 @@ def package_manuscript(
     # pattern.findall(tex)
 
     tex = pattern.sub(
-        lambda m: m.group(1) if not "ORCID" in m.group(2) else m.group(0), tex
+        lambda m: m.group(1) if "ORCID" not in m.group(2) else m.group(0), tex
     )
 
     target_tex_path.write_text(tex)

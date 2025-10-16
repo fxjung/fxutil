@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import logging
 import warnings
 
@@ -18,8 +16,11 @@ from cycler import cycler
 
 
 from fxutil.common import get_git_repo_path
+from fxutil.typing import Combi, parse_combi_args
 
 log = logging.getLogger(__name__)
+
+DEFAULT_FILETYPES = ["png", "pdf"]
 
 
 def evf(S, f, **kwargs):
@@ -218,6 +219,7 @@ class SaveFigure:
         ],
     }
 
+    @parse_combi_args
     def __init__(
         self,
         plot_dir: str | Path = None,
@@ -227,7 +229,7 @@ class SaveFigure:
         make_tex_safe: bool = True,
         interactive_mode: str | None = "dark",
         use_styles: list[str] | None = None,
-        filetypes=None,
+        filetypes: Combi[str] | None = None,
         name_str_space_replacement_char: str = "-",
         width: float = None,
         # TODO what about these guys?
@@ -282,7 +284,7 @@ class SaveFigure:
 
         self._base_plot_dir = plot_dir
 
-        self.filetypes = self._parse_filetypes(filetypes)
+        self.filetypes = filetypes or DEFAULT_FILETYPES
         self.subfolder_per_filetype = subfolder_per_filetype
 
         self.output_dpi = output_dpi
@@ -293,7 +295,7 @@ class SaveFigure:
         self.use_styles = use_styles or [*self.styles.keys()]
         self.interactive_mode = interactive_mode
 
-        self.fig_width = width or 170
+        self.fig_width_mm = width or 170
 
         # stolen from https://discourse.jupyter.org/t/find-out-if-my-code-runs-inside-a-notebook-or-jupyter-lab/6935/7
         try:
@@ -324,6 +326,18 @@ class SaveFigure:
         extra_artists: Optional[list] = None,
         filetypes=None,
     ):
+        """
+        Call to save the figure in the specified styles and formats.
+
+        Parameters
+        ----------
+        plot_function
+        name
+        fig
+        panel
+        extra_artists
+        filetypes
+        """
         for style_name in self.use_styles:
             style = self.styles[style_name]
             log.info(f"Saving figure in {style_name} style...")
@@ -355,6 +369,7 @@ class SaveFigure:
                 self._display_plot(fig)
                 plt.close(fig)
 
+    @parse_combi_args
     def _save_figure(
         self,
         plot_function: Callable,
@@ -365,7 +380,7 @@ class SaveFigure:
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
         layout_engine_params: Optional[dict] = None,
-        filetypes=None,
+        filetypes: Combi[str] | None = None,
     ):
         self.register_contrast_color(style_name)
         with plt.style.context(style, after_reset=True):
@@ -430,9 +445,7 @@ class SaveFigure:
             )
             name += self.name_str_space_replacement_char + style_name
 
-            for ext in (
-                self._parse_filetypes(filetypes) if filetypes else self.filetypes
-            ):
+            for ext in filetypes if filetypes else self.filetypes:
                 fig.savefig(
                     self._get_plot_dir(ext) / f"{name}.{ext}",
                     dpi=self.output_dpi,
@@ -443,6 +456,14 @@ class SaveFigure:
 
     @staticmethod
     def register_contrast_color(style_name: str):
+        """
+        Register the "contrast" and "acontrast" colors in matplotlib's color map.
+
+        Parameters
+        ----------
+        style_name
+            The style name, either "light" or "dark".
+        """
         match style_name:
             case "light":
                 contrast = "#000000"  # can't be named color
@@ -475,6 +496,7 @@ class SaveFigure:
         height=None,
     ):
         """
+        Create a figure and axes.
 
         Parameters
         ----------
@@ -520,7 +542,7 @@ class SaveFigure:
         if panel_labels is None:
             panel_labels = n_rows * n_cols > 1
 
-        width_mm = width or self.fig_width
+        width_mm = width or self.fig_width_mm
         height_mm = height or width_mm / n_cols * n_rows * 3 / 4
 
         width_in = width_mm / 25.4
@@ -559,19 +581,19 @@ class SaveFigure:
 
     @ft.cache
     def _get_plot_dir(self, filetype: str):
+        """
+        Get (and create if necessary) the directory to save plots of the given filetype.
+
+        Parameters
+        ----------
+        filetype
+            File extension, such as "pdf" or "png".
+        """
         plot_dir = self._base_plot_dir
         if self.subfolder_per_filetype:
             plot_dir /= filetype
         plot_dir.mkdir(exist_ok=True, parents=True)
         return plot_dir
-
-    def _parse_filetypes(self, filetypes: str | list[str] | None) -> list[str]:
-        if not filetypes:
-            filetypes = ["pdf", "png"]
-        elif isinstance(filetypes, str):
-            filetypes = [filetypes]
-
-        return filetypes
 
     @property
     def output_dir(self):
