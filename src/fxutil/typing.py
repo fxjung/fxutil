@@ -56,6 +56,31 @@ def parse_combi_argument(arg, exceptions=None):
 
 
 def parse_combi_args(func: Callable | None = None, exceptions: list = None):
+    """
+    Decorator to parse Combi arguments of a function.
+
+    Usage example:
+
+    ```python
+    @parse_combi_args
+    def my_function(param: Combi[int] | None):
+        ...
+    ```
+
+    This will ensure that `param` is always treated as an iterable of integers (or None)
+    when `my_function` is called, even if a single integer is passed.
+
+
+    Parameters
+    ----------
+    func
+    exceptions
+
+    Returns
+    -------
+
+    """
+
     def _decorate(func):
         sig = inspect.signature(func)
 
