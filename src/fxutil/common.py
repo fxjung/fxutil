@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from typing import Iterable, Optional
 
+import operator as op
 import numpy as np
 import pandas as pd
 import pygit2
@@ -228,11 +229,24 @@ def thing(which: Optional[str]):
 
     """
     tabular_data = np.c_[10:20, 100:110]
+    iterable_1d = map(op.methodcaller("item"), tabular_data[:, 0])
     which = which or "dataframe"
-    if which in ["dataframe", "pandas"]:
+    if which in ["dataframe", "pandas", "pd", "df", "d"]:
         return pd.DataFrame(tabular_data, columns=["a", "b"])
-    elif which in ["array", "np", "numpy"]:
+    elif which in ["series", "ser", "s"]:
+        return pd.Series(iterable_1d, name="a")
+    elif which in ["list", "l", "s"]:
+        return [*iterable_1d]
+    elif which in ["tuple", "t"]:
+        return (*iterable_1d,)
+    elif which in ["set", "s"]:
+        return {*iterable_1d}
+    elif which in ["dict"]:
+        return {chr(97 + v): v for v in iterable_1d}
+    elif which in ["array", "np", "numpy", "n"]:
         return tabular_data
+    else:
+        raise ValueError()
 
 
 def get_unique_with_bang(iterable):
