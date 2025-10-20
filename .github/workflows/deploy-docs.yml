@@ -1,9 +1,10 @@
 name: Build and Deploy Docs
 
 on:
-  push:
-    branches: [master]
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["PyPI Release"]
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -20,7 +21,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Install dev dependencies
-        run: uv sync
+        run: uv sync --dev
 
       - name: Build docs
         run: uv run --frozen --no-sync sphinx-build -b html docs docs/_build/html
