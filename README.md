@@ -9,7 +9,7 @@ Scarcely documented.
 
 ### Getting started
 
-Needs Python 3.8 or later.
+Needs Python 3.10 or later.
 
 ```bash
 pip install fxutil
