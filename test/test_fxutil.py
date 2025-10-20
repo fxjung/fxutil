@@ -1,11 +1,10 @@
 import os
+from pathlib import Path
 
 import pandas as pd
 import pytest
 
-from pathlib import Path
-
-from fxutil.common import get_git_repo_path, bunny
+from fxutil.common import bunny, get_git_repo_path
 
 
 def test_get_git_repo_path(tmpdir):

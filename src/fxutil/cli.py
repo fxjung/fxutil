@@ -1,11 +1,9 @@
+import logging
 from typing import Annotated
 
 import typer
 
-from pathlib import Path
 from fxutil.manuscript import package_manuscript as _package_manuscript
-
-import logging
 
 log = logging.getLogger(__name__)
 

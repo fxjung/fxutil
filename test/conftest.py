@@ -6,7 +6,8 @@ from fxutil import SaveFigure
 @pytest.fixture(scope="session")
 def plot_fn_factory():
     import numpy as np
-    from fxutil.plotting import figax, evf
+
+    from fxutil.plotting import evf, figax
 
     def make_plotter(latex=False, sf: SaveFigure | None = None):
         def _plot():

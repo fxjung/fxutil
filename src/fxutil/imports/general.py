@@ -1,3 +1,5 @@
+# ruff: noqa
+
 import dataclasses
 import h5py
 import scipy
@@ -21,7 +23,11 @@ import seaborn as sns
 
 from pathlib import Path
 from IPython.display import display
+from IPython import get_ipython
+from IPython.core.magic import register_cell_magic
 from cycler import cycler
+
+from fxutil.meta import in_ipython_session
 
 pd.set_option("display.max_rows", 500)
 pd.set_option("display.max_columns", 500)
@@ -43,3 +49,23 @@ from fxutil.common import (
 )
 
 from fxutil.typing import Combi, parse_combi_args
+
+# ruff:enable
+
+if in_ipython_session():
+
+    @register_cell_magic
+    def s(line, cell):
+        cls = SaveFigure
+        ip = get_ipython()
+        ns = ip.user_ns
+        sfs = [v for v in ns.values() if isinstance(v, cls)]
+        if (n_sfs := len(sfs)) > 1:
+            raise RuntimeError("Must have no more than one SaveFigure instance")
+        elif n_sfs == 1:
+            sf = sfs[0]
+        elif n_sfs == 0:
+            # print("Creating SaveFigure instance")
+            sf = SaveFigure()
+            ns["sf"] = sf
+        sf(lambda globals_=ns: exec(cell, globals_), name=line)

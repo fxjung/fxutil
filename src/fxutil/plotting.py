@@ -1,21 +1,20 @@
-import logging
-import warnings
-
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import itertools as it
 import functools as ft
-import numpy as np
+import itertools as it
+import logging
 import operator as op
-import matplotlib.colors as mpc
-
-from typing import Optional, Callable
+import warnings
 from collections.abc import Iterable, Sequence
 from pathlib import Path
+from typing import Callable, Optional
+
+import matplotlib as mpl
+import matplotlib.colors as mpc
+import matplotlib.pyplot as plt
+import numpy as np
 from cycler import cycler
 
-
 from fxutil.common import get_git_repo_path
+from fxutil.meta import in_ipython_session
 from fxutil.typing import Combi, parse_combi_args
 
 log = logging.getLogger(__name__)
@@ -299,15 +298,11 @@ class SaveFigure:
 
         self.fig_width_mm = width or 170
 
-        # stolen from https://discourse.jupyter.org/t/find-out-if-my-code-runs-inside-a-notebook-or-jupyter-lab/6935/7
-        try:
-            __IPYTHON__
-            self._in_ipython_session = True
-
+        if in_ipython_session():
             from IPython.display import display
 
             self._display_plot = lambda fig: display(fig)
-        except NameError:
+        else:
             self._in_ipython_session = False
             self._display_plot = lambda fig: plt.show()
 

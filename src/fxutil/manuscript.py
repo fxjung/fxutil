@@ -1,12 +1,9 @@
+import itertools as it
+import logging
 import re
 import shutil
 import subprocess
-
-import itertools as it
-
 from pathlib import Path
-
-import logging
 
 log = logging.getLogger(__name__)
 

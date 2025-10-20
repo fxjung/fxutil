@@ -1,7 +1,5 @@
-import inspect
-
 import functools as ft
-
+import inspect
 from typing import Annotated, Callable, Iterable, TypeVar, Union, get_args, get_origin
 
 T = TypeVar("T")

@@ -1,6 +1,6 @@
-import pytest
-
 import itertools as it
+
+import pytest
 
 from fxutil.plotting import SaveFigure
 
