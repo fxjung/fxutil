@@ -22,7 +22,7 @@ jobs:
     - name: Install TeXLive
       run: |
         sudo apt-get update
-        sudo apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended dvipng cm-super texlive-math-extra
+        sudo apt-get install -y texlive-full
     - name: Install uv
       uses: astral-sh/setup-uv@v7
     - name: Install Python
