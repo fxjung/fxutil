@@ -27,7 +27,7 @@ pre-commit install
 pytest
 ```
 
-Code style is black.
+Code style is ruff.
 
 ### CLI commands
 
@@ -54,3 +54,10 @@ def draw_plot():
 sf(draw_plot, "my cute figure")
 ```
 
+
+### Releasing a new version
+
+```bash
+git push
+gh release create v<version> --generate-notes
+```
