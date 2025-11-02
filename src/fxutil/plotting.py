@@ -198,7 +198,23 @@ def pad_range(left, right, pad=0.03, log=False):
 
 
 class TwoScaleLogNorm(mpl.colors.Normalize):
+    """
+    Two-scale logarithmic norm for matplotlib color maps.
+    """
+
     def __init__(self, vmin, vmax, center):
+        """
+        Initialize the TwoScaleLogNorm, setting min/max/center values.
+
+        Parameters
+        ----------
+        vmin
+            Minimum value of the scale
+        vmax
+            Maximum value of the scale
+        center
+            Center value of the scale
+        """
         super().__init__(vmin, vmax)
         self.center = center
 
@@ -209,6 +225,19 @@ class TwoScaleLogNorm(mpl.colors.Normalize):
         self.alow = (1 - self.blow) / vmin
 
     def __call__(self, x):
+        """
+        Return normalized value of data value x.
+
+        Parameters
+        ----------
+        x
+            Data value
+
+        Returns
+        -------
+        Normalized value
+
+        """
         return np.log(
             np.where(
                 x > self.center, self.aup * x + self.bup, self.alow * x + self.blow
@@ -216,6 +245,19 @@ class TwoScaleLogNorm(mpl.colors.Normalize):
         )
 
     def inverse(self, y):
+        """
+        Return inverse mapping of normalized value y to original data value.
+
+        Parameters
+        ----------
+        y
+            Normalized value
+
+        Returns
+        -------
+        Original data value
+
+        """
         return np.where(
             y > 0.5,
             (np.exp(y) - self.bup) / self.aup,
