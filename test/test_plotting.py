@@ -13,6 +13,7 @@ def test_basic_plotting(latex, gridspec, tmpdir, plot_fn_factory):
         subfolder_per_filetype=True,
         width=100,
         output_dpi=300,
+        filetypes=["png", "pdf"],
     )
     if gridspec:
         plot = plot_fn_factory(latex=latex, sf=sf)
