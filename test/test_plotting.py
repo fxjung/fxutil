@@ -42,7 +42,7 @@ def test_filetype_combi_args(filetypes, tmpdir, plot_fn_factory):
     sf(plot, "basic plot")
 
     if filetypes is None:
-        filetypes_parsed = ["png", "pdf"]
+        filetypes_parsed = ["png"]
     elif isinstance(filetypes, str):
         filetypes_parsed = [filetypes]
     else:

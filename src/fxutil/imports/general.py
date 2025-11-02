@@ -19,6 +19,7 @@ import pandas as pd
 import networkx as nx
 
 import matplotlib as mpl
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
 import seaborn as sns
 
