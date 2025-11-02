@@ -633,16 +633,19 @@ class SaveFigure:
             height_ratios=height_ratios,
         )
         axs = [*map(fig.add_subplot, gs)]
-        if panel_labels:
+        if isinstance(panel_labels, Iterable) and all(
+            isinstance(pl, int) for pl in panel_labels
+        ):
             for i, ax in enumerate(axs, 97):
-                ax.text(
-                    -0.15,
-                    1.1,
-                    rf"\textbf{{({chr(i)})}}",
-                    transform=ax.transAxes,
-                    ha="right",
-                    va="bottom",
-                )
+                if i - 97 in panel_labels:
+                    ax.text(
+                        -0.15,
+                        1.1,
+                        rf"\textbf{{({chr(i)})}}",
+                        transform=ax.transAxes,
+                        ha="right",
+                        va="bottom",
+                    )
         return fig, axs if len(axs) > 1 else axs[0]
 
     @ft.cache
