@@ -19,7 +19,7 @@ from fxutil.typing import Combi, parse_combi_args
 
 log = logging.getLogger(__name__)
 
-DEFAULT_FILETYPES = ["png", "pdf"]
+DEFAULT_FILETYPES = ["png"]
 
 
 def evf(S, f, **kwargs):
@@ -195,6 +195,32 @@ def pad_range(left, right, pad=0.03, log=False):
         rp = np.exp(rp)
 
     return lp, rp
+
+
+class TwoScaleLogNorm(mpl.colors.Normalize):
+    def __init__(self, vmin, vmax, center):
+        super().__init__(vmin, vmax)
+        self.center = center
+
+        self.bup = (np.e - vmax / center * np.e**0.5) / (1 - vmax / center)
+        self.aup = (np.e - self.bup) / vmax
+
+        self.blow = (1 - vmin / center * np.e**0.5) / (1 - vmin / center)
+        self.alow = (1 - self.blow) / vmin
+
+    def __call__(self, x):
+        return np.log(
+            np.where(
+                x > self.center, self.aup * x + self.bup, self.alow * x + self.blow
+            )
+        )
+
+    def inverse(self, y):
+        return np.where(
+            y > 0.5,
+            (np.exp(y) - self.bup) / self.aup,
+            (np.exp(y) - self.blow) / self.alow,
+        )
 
 
 class SaveFigure:

@@ -6,6 +6,7 @@ import scipy
 import copy
 import random
 import json
+import re
 
 import itertools as it
 import functools as ft
