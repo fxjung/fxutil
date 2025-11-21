@@ -123,7 +123,7 @@ def figax(
     fig, ax
 
     """
-    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, **kwargs)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, layout="constrained", **kwargs)
     return fig, ax
 
 
@@ -391,7 +391,9 @@ class SaveFigure:
         extra_artists: Optional[list] = None,
         filetypes=None,
         layout_engine_params: Optional[dict] = None,
-        layout_engine: Literal["none", "compressed", "tight", "constrained"] = "none",
+        layout_engine: Literal[
+            "none", "compressed", "tight", "constrained"
+        ] = "constrained",
     ):
         """
         Call to save the figure in the specified styles and formats.
@@ -451,7 +453,9 @@ class SaveFigure:
         fig=None,
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
-        layout_engine: Literal["none", "compressed", "tight", "constrained"] = "none",
+        layout_engine: Literal[
+            "none", "compressed", "tight", "constrained"
+        ] = "constrained",
         layout_engine_params: Optional[dict] = None,
         filetypes: Combi[str] | None = None,
     ):
