@@ -550,6 +550,26 @@ class SaveFigure:
         mpc._colors_full_map["contrast"] = contrast
         mpc._colors_full_map["acontrast"] = acontrast
 
+    def get_figure(
+        self,
+        n_rows: int | None = None,
+        n_cols: int | None = None,
+        width=None,
+        height=None,
+    ):
+        width_mm = width or self.fig_width_mm
+        height_mm = height or width_mm / n_cols * n_rows * 3 / 4
+
+        width_in = width_mm / 25.4
+        height_in = height_mm / 25.4
+
+        fig = plt.figure(
+            figsize=(width_in, height_in),
+            dpi=self.output_dpi,
+        )
+
+        return fig
+
     def figax(
         self,
         n_panels=None,
@@ -618,17 +638,8 @@ class SaveFigure:
         if panel_labels is None:
             panel_labels = [*range(n_rows * n_cols)] if n_rows * n_cols > 1 else []
 
-        width_mm = width or self.fig_width_mm
-        height_mm = height or width_mm / n_cols * n_rows * 3 / 4
-
-        width_in = width_mm / 25.4
-        height_in = height_mm / 25.4
-
-        fig = plt.figure(
-            figsize=(width_in, height_in),
-            dpi=self.output_dpi,
-        )
         width_ratios = width_ratios if width_ratios is not None else [1] * n_cols
+        fig = self.get_figure(n_rows=n_rows, n_cols=n_cols, width=width, height=height)
         gs = fig.add_gridspec(
             nrows=n_rows,
             ncols=n_cols,
