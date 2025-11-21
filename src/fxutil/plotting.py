@@ -123,7 +123,7 @@ def figax(
     fig, ax
 
     """
-    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, layout="constrained", **kwargs)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi, **kwargs)
     return fig, ax
 
 
@@ -627,7 +627,6 @@ class SaveFigure:
         fig = plt.figure(
             figsize=(width_in, height_in),
             dpi=self.output_dpi,
-            constrained_layout=True,
         )
         width_ratios = width_ratios if width_ratios is not None else [1] * n_cols
         gs = fig.add_gridspec(
