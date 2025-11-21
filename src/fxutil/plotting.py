@@ -5,7 +5,7 @@ import operator as op
 import warnings
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Literal
 
 import matplotlib as mpl
 import matplotlib.colors as mpc
@@ -390,6 +390,8 @@ class SaveFigure:
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
         filetypes=None,
+        layout_engine_params: Optional[dict] = None,
+        layout_engine: Literal["none", "compressed", "tight", "constrained"] = "none",
     ):
         """
         Call to save the figure in the specified styles and formats.
@@ -414,7 +416,8 @@ class SaveFigure:
                 fig=fig,
                 panel=panel,
                 extra_artists=extra_artists,
-                layout_engine_params=self.layout_engine_params,
+                layout_engine=layout_engine,
+                layout_engine_params=layout_engine_params,
                 filetypes=filetypes,
             )
 
@@ -423,6 +426,9 @@ class SaveFigure:
             with plt.style.context(self.styles[style_name], after_reset=True):
                 plot_function()
                 fig = plt.gcf()
+                fig.set_layout_engine(layout_engine)
+                if layout_engine_params:
+                    fig.get_layout_engine().set(**layout_engine_params)
                 fig.set_dpi(self.display_dpi)
                 # fig.canvas.draw()  # Does not seem to be necessary
                 if style_name == "dark" and not self._in_ipython_session:
@@ -445,6 +451,7 @@ class SaveFigure:
         fig=None,
         panel: Optional[str] = None,
         extra_artists: Optional[list] = None,
+        layout_engine: Literal["none", "compressed", "tight", "constrained"] = "none",
         layout_engine_params: Optional[dict] = None,
         filetypes: Combi[str] | None = None,
     ):
@@ -455,8 +462,8 @@ class SaveFigure:
             if fig is None:
                 fig = plt.gcf()
 
-            if layout_engine_params is not None:
-                fig.set_layout_engine("constrained")
+            fig.set_layout_engine(layout_engine)
+            if layout_engine_params:
                 fig.get_layout_engine().set(**layout_engine_params)
 
             extra_artists = extra_artists or []
@@ -557,7 +564,7 @@ class SaveFigure:
         hspace=None,
         width_ratios: Sequence[float] = None,
         height_ratios: Sequence[float] = None,
-        panel_labels: Optional[bool] = None,
+        panel_labels: Optional[Iterable[int]] = None,
         width=None,
         height=None,
     ):
@@ -575,6 +582,9 @@ class SaveFigure:
         width_ratios
         height_ratios
         panel_labels
+            If an iterable of integers, label the corresponding panels with
+            (a), (b), ... at the top-left corner.
+            If None, label panels only if there are multiple panels.
         width
         height
 
@@ -606,7 +616,7 @@ class SaveFigure:
                     )
 
         if panel_labels is None:
-            panel_labels = n_rows * n_cols > 1
+            panel_labels = [*range(n_rows * n_cols)] if n_rows * n_cols > 1 else []
 
         width_mm = width or self.fig_width_mm
         height_mm = height or width_mm / n_cols * n_rows * 3 / 4
@@ -645,6 +655,7 @@ class SaveFigure:
                         transform=ax.transAxes,
                         ha="right",
                         va="bottom",
+                        zorder=100,
                     )
         return fig, axs if len(axs) > 1 else axs[0]
 

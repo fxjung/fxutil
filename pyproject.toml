@@ -36,6 +36,8 @@ dependencies = [
     "ipython>=8.37.0",
     "odfpy>=1.4.1",
     "pyperclip>=1.11.0",
+    "pyarrow>=22.0.0",
+    "fastparquet>=2024.11.0",
 ]
 
 [project.optional-dependencies]
