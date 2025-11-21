@@ -556,8 +556,8 @@ class SaveFigure:
 
     def get_figure(
         self,
-        n_rows: int | None = None,
-        n_cols: int | None = None,
+        n_rows: int | None,
+        n_cols: int | None,
         width=None,
         height=None,
     ):
