@@ -13,7 +13,14 @@ from fxutil.common import (
     scinum,
     thing,
 )
-from fxutil.plotting import SaveFigure, easy_prop_cycle, evf, figax, pad_range
+from fxutil.plotting import (
+    SaveFigure,
+    easy_prop_cycle,
+    evf,
+    figax,
+    pad_range,
+    LabelMaker,
+)
 
 from .meta import in_ipython_session
 from .typing import Combi, parse_combi_args
@@ -37,6 +44,7 @@ __all__ = [
     "bunny",
     "Combi",
     "parse_combi_args",
+    "LabelMaker",
 ]
 
 logging.getLogger("").setLevel(logging.WARNING)
