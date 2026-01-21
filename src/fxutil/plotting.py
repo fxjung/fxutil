@@ -692,3 +692,15 @@ class SaveFigure:
     @property
     def output_dir(self):
         return self._base_plot_dir
+
+
+class LabelMaker:
+    has_fired = False
+
+    def __init__(self, label: str):
+        self.label = label
+
+    def __call__(self):
+        if not self.has_fired:
+            self.has_fired = True
+            return self.label
