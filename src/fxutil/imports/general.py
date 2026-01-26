@@ -3,7 +3,6 @@
 import dataclasses
 import h5py
 import scipy
-import copy
 import random
 import json
 import re

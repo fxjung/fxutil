@@ -466,7 +466,9 @@ class SaveFigure:
             if fig is None:
                 fig = plt.gcf()
 
+            # log.info(f"Setting layout engine to {layout_engine}, was {fig.get_layout_engine()}")
             fig.set_layout_engine(layout_engine)
+
             if layout_engine_params:
                 fig.get_layout_engine().set(**layout_engine_params)
 
