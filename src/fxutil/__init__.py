@@ -20,6 +20,7 @@ from fxutil.plotting import (
     figax,
     pad_range,
     LabelMaker,
+    force_log_ticks,
 )
 
 from .meta import in_ipython_session
@@ -45,6 +46,7 @@ __all__ = [
     "Combi",
     "parse_combi_args",
     "LabelMaker",
+    "force_log_ticks",
 ]
 
 logging.getLogger("").setLevel(logging.WARNING)

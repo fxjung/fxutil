@@ -41,6 +41,7 @@ from fxutil.plotting import (
     figax,
     pad_range,
     LabelMaker,
+    force_log_ticks,
 )
 from fxutil.common import (
     fmt_bytes,

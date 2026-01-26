@@ -706,3 +706,30 @@ class LabelMaker:
         if not self.has_fired:
             self.has_fired = True
             return self.label
+
+
+def force_log_ticks(ax):
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.xaxis.set_major_locator(mpl.ticker.LogLocator(base=10, subs=(1,), numticks=100))
+    ax.yaxis.set_major_locator(mpl.ticker.LogLocator(base=10, subs=(1,), numticks=100))
+
+    ax.xaxis.set_minor_locator(mpl.ticker.LogLocator(base=10, subs="all", numticks=100))
+    ax.yaxis.set_minor_locator(mpl.ticker.LogLocator(base=10, subs="all", numticks=100))
+
+    nf = mpl.ticker.NullFormatter()
+    ax.xaxis.set_major_formatter(nf)
+    ax.yaxis.set_major_formatter(nf)
+    ax.xaxis.set_minor_formatter(nf)
+    ax.yaxis.set_minor_formatter(nf)
+
+    ax.tick_params(
+        which="minor", length=3.5, width=0.8, labelleft=False, labelbottom=False
+    )
+    ax.tick_params(
+        which="major", length=5.0, width=1.0, labelleft=False, labelbottom=False
+    )
+
+    for tick in ax.xaxis.get_minor_ticks() + ax.yaxis.get_minor_ticks():
+        tick.tick1line.set_clip_on(False)
+        tick.tick2line.set_clip_on(False)
