@@ -1,8 +1,9 @@
 import itertools as it
+import numpy as np
 
 import pytest
 
-from fxutil.plotting import SaveFigure
+from fxutil.plotting import SaveFigure, evf
 
 
 @pytest.mark.parametrize("latex,gridspec", it.product(*[[False, True]] * 2))
@@ -50,3 +51,15 @@ def test_filetype_combi_args(filetypes, tmpdir, plot_fn_factory):
 
     for ext in filetypes_parsed:
         assert (tmpdir / f"basic-plot-light.{ext}").exists()
+
+
+def test_evf():
+    x, y = evf(np.r_[0:5:10j], lambda x: x / 2)
+
+    assert np.array_equal(x, np.r_[0:5:10j])
+    assert np.array_equal(y, x / 2)
+
+    x, y = evf[0:5:10j, lambda x: x / 2]
+
+    assert np.array_equal(x, np.r_[0:5:10j])
+    assert np.array_equal(y, x / 2)

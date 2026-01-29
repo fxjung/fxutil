@@ -22,21 +22,41 @@ log = logging.getLogger(__name__)
 DEFAULT_FILETYPES = ["png"]
 
 
-def evf(S, f, **kwargs):
+class Evf:
     """
-    Use like
-    `ax.plot(*evf(np.r_[0:1:50j], lambda x, c: x ** 2 + c, c=5))`
+    Evaluate a vectorized function on a space `s` (array or slice).
 
-    Parameters
-    ----------
-    S
-        Space
-    f
-        function
-    **kwargs
-        Additional function args
+    Usage:
+        ax.plot(*evf[0:1:50j, lambda x, c: x**2 + c, {"c": 5}])
+        ax.plot(*evf(np.r_[0:1:50j], lambda x, c: x**2 + c, c=5))
     """
-    return S, f(S, **kwargs)
+
+    def __getitem__(self, item):
+        # allow: evf[s, f] or evf[s, f, kwargs]
+        if not isinstance(item, tuple):
+            raise TypeError("Use evf[s, f] or evf[s, f, kwargs].")
+
+        if len(item) == 2:
+            s, f = item
+            kwargs = {}
+        elif len(item) == 3:
+            s, f, kwargs = item
+            if kwargs is None:
+                kwargs = {}
+            if not isinstance(kwargs, dict):
+                raise TypeError("Third item must be a dict of kwargs.")
+        else:
+            raise ValueError("Use evf[s, f] or evf[s, f, kwargs].")
+
+        return self(s, f, **kwargs)
+
+    def __call__(self, s, f, **kwargs):
+        if isinstance(s, slice):
+            s = np.r_[s]
+        return s, f(s, **kwargs)
+
+
+evf = Evf()
 
 
 solarized_colors = dict(
