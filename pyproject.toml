@@ -12,7 +12,7 @@ license = "MIT"
 description = """Some handy tools..."""
 keywords = ["utilities", "python", "science"]
 readme = "README.md"
-requires-python=">=3.10"
+requires-python=">=3.13"
 classifiers = [
     "Intended Audience :: Science/Research",
     "Natural Language :: English",
@@ -38,6 +38,7 @@ dependencies = [
     "pyperclip>=1.11.0",
     "pyarrow>=22.0.0",
     "fastparquet>=2024.11.0",
+    "vrptools",
 ]
 
 [project.optional-dependencies]
@@ -89,6 +90,9 @@ exclude = '''
   | googletest
 )/
 '''
+
+[tool.uv.sources]
+vrptools = { path = "../vrptools", editable = true }
 
 [dependency-groups]
 dev = [

@@ -42,6 +42,7 @@ from fxutil.plotting import (
     pad_range,
     LabelMaker,
     force_log_ticks,
+    get_safe_color_axes,
 )
 from fxutil.common import (
     fmt_bytes,
@@ -50,6 +51,7 @@ from fxutil.common import (
     round_by_method,
     scinum,
     nixt,
+    onixt,
     thing,
     get_unique_with_bang,
     bunny,

@@ -9,6 +9,7 @@ from fxutil.common import (
     get_git_repo_path,
     get_unique_with_bang,
     nixt,
+    onixt,
     round_by_method,
     scinum,
     thing,
@@ -21,6 +22,7 @@ from fxutil.plotting import (
     pad_range,
     LabelMaker,
     force_log_ticks,
+    get_safe_color_axes,
 )
 
 from .meta import in_ipython_session
@@ -47,6 +49,8 @@ __all__ = [
     "parse_combi_args",
     "LabelMaker",
     "force_log_ticks",
+    "get_safe_color_axes",
+    "onixt",
 ]
 
 logging.getLogger("").setLevel(logging.WARNING)

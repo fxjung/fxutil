@@ -753,3 +753,21 @@ def force_log_ticks(ax):
     for tick in ax.xaxis.get_minor_ticks() + ax.yaxis.get_minor_ticks():
         tick.tick1line.set_clip_on(False)
         tick.tick2line.set_clip_on(False)
+
+
+def get_safe_color_axes(ax):
+    fig = ax.figure
+
+    ss = ax.get_subplotspec()
+    subgs = ss.subgridspec(
+        nrows=1,
+        ncols=2,
+        width_ratios=[1, 0.05],
+        # wspace=0.05,
+    )
+    ax.remove()
+
+    ax = fig.add_subplot(subgs[0])
+    cax = fig.add_subplot(subgs[1])
+
+    return ax, cax

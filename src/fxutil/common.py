@@ -214,6 +214,30 @@ def nixt(thing: Iterable):
     return next(iter(thing))
 
 
+def onixt(thing: Iterable):
+    """
+    Return the first element of an iterable.
+    Fail with a bang if iterable contains more than one element.
+
+    Parameters
+    ----------
+    thing
+        Iterable to exhaust and return the value of
+
+    Returns
+    -------
+    Exactly one element
+    """
+    iter_ = iter(thing)
+    val = next(iter_)
+    try:
+        next(iter_)
+    except StopIteration:
+        return val
+    else:
+        raise ValueError("Iterable yielded more than one element.")
+
+
 def thing(which: Optional[str]):
     """
     Return a thing.
