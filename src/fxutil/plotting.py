@@ -717,6 +717,8 @@ class SaveFigure:
 
 
 class LabelMaker:
+    """Return a label once, then suppress it on subsequent calls."""
+
     has_fired = False
 
     def __init__(self, label: str):
@@ -729,6 +731,14 @@ class LabelMaker:
 
 
 def force_log_ticks(ax):
+    """
+    Configure log-scaled x and y axes with dense, unlabeled major and minor ticks.
+
+    Parameters
+    ----------
+    ax
+        Matplotlib axes to update.
+    """
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.xaxis.set_major_locator(mpl.ticker.LogLocator(base=10, subs=(1,), numticks=100))
