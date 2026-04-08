@@ -90,9 +90,6 @@ exclude = '''
 )/
 '''
 
-[tool.uv.sources]
-vrptools = { path = "../vrptools", editable = true }
-
 [dependency-groups]
 dev = [
     "furo>=2025.9.25",
