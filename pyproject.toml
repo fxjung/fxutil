@@ -38,7 +38,6 @@ dependencies = [
     "pyperclip>=1.11.0",
     "pyarrow>=22.0.0",
     "fastparquet>=2024.11.0",
-    "vrptools",
 ]
 
 [project.optional-dependencies]
