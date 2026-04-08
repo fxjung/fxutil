@@ -57,6 +57,7 @@ from fxutil.common import (
     bunny,
     minmax,
     mmr,
+    permute,
 )
 
 from fxutil.typing import Combi, parse_combi_args

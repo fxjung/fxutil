@@ -156,7 +156,7 @@ def get_git_repo_path():
         return Path(repository_path).parent
 
 
-def minmax(ser):
+def minmax(ser, min_quantile: float | None = None, max_quantile: float | None = None):
     """
     Convenience wrapper that returns the minimum and maximum of an iterable.
 
@@ -164,6 +164,10 @@ def minmax(ser):
     ----------
     ser
         Iterable to find the minimum and maximum of.
+    min_quantile
+        If not None, use quantile for min instead of global min.
+    max_quantile
+        If not None, use quantile for max instead of global max.
 
     Returns
     -------
@@ -172,7 +176,17 @@ def minmax(ser):
     max
         Maximum
     """
-    return min(ser), max(ser)
+    if min_quantile is None:
+        _min = min(ser)
+    else:
+        _min = np.quantile(ser, min_quantile)
+
+    if max_quantile is None:
+        _max = max(ser)
+    else:
+        _max = np.quantile(ser, max_quantile)
+
+    return _min, _max
 
 
 def mmr(ser):
@@ -294,3 +308,7 @@ def get_unique_with_bang(iterable):
 
 
 bunny = get_unique_with_bang
+
+
+def permute(iterable, perm):
+    return [iterable[i] for i in perm]

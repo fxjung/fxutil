@@ -13,6 +13,7 @@ from fxutil.common import (
     round_by_method,
     scinum,
     thing,
+    permute,
 )
 from fxutil.plotting import (
     SaveFigure,
@@ -51,6 +52,7 @@ __all__ = [
     "force_log_ticks",
     "get_safe_color_axes",
     "onixt",
+    "permute",
 ]
 
 logging.getLogger("").setLevel(logging.WARNING)
