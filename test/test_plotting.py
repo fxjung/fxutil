@@ -107,11 +107,12 @@ def test_presentation_save_and_display(scheme, first_color, tmp_path, monkeypatc
             assert mpl.rcParams[key] == 30
         for key in ["xtick.labelsize", "ytick.labelsize", "legend.fontsize"]:
             assert mpl.rcParams[key] == 26
-        assert mpl.rcParams["lines.linewidth"] == 2.8
-        assert mpl.rcParams["lines.markersize"] == 8
-        assert mpl.rcParams["axes.linewidth"] == 1.3
+        assert mpl.rcParams["lines.linewidth"] == 3.2
+        assert mpl.rcParams["lines.markersize"] == 9
+        assert mpl.rcParams["axes.linewidth"] == 1.6
         assert mpl.rcParams["font.family"] == ["sans-serif"]
-        assert mpl.rcParams["text.usetex"]
+        assert not mpl.rcParams["text.usetex"]
+        assert mpl.rcParams["mathtext.fontset"] == "cm"
         assert "lmodern" in mpl.rcParams["text.latex.preamble"]
         assert not mpl.rcParams["axes.spines.top"]
         assert not mpl.rcParams["axes.spines.right"]

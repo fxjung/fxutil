@@ -96,7 +96,8 @@ sf(plot, "example")
 ```
 
 Presentation mode uses 26 pt text, 30 pt titles and axis labels, thicker lines,
-larger markers, outward ticks, and restrained high-contrast palettes. Top and
+9 pt markers, 3.2 pt lines, outward ticks, and restrained high-contrast palettes.
+Axes and major ticks use a moderate 1.6 pt stroke; minor ticks remain lighter. Top and
 right spines, legend frames, and grids are hidden; enable a grid with
 `ax.grid(True)`. Publication defaults remain unchanged unless you enable this mode.
 
