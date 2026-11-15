@@ -141,10 +141,10 @@ def test_presentation_save_and_display(scheme, first_color, tmp_path, monkeypatc
 @pytest.mark.parametrize(
     "rows,cols,width,height,expected",
     [
-        (1, 1, None, None, [270, 145]),
-        (2, 2, None, None, [270, 145]),
-        (2, 1, None, None, [270, 290]),
-        (1, 1, 240, None, [240, 240 * 145 / 270]),
+        (1, 1, None, None, [270, 202.5]),
+        (2, 2, None, None, [270, 202.5]),
+        (2, 1, None, None, [270, 405]),
+        (1, 1, 240, None, [240, 240 * 3 / 4]),
         (1, 1, None, 100, [270, 100]),
         (2, 1, 200, 120, [200, 120]),
     ],
@@ -162,7 +162,7 @@ def test_presentation_dimensions(rows, cols, width, height, expected):
     sf = SaveFigure(presentation=True, width=200)
     fig, axes = sf.figax(n_panels=3)
     assert len(axes) == 4  # Existing automatic 2 × 2 arrangement.
-    np.testing.assert_allclose(fig.get_size_inches() * 25.4, [200, 200 * 145 / 270])
+    np.testing.assert_allclose(fig.get_size_inches() * 25.4, [200, 200 * 3 / 4])
     plt.close(fig)
 
 
@@ -190,3 +190,47 @@ def test_presentation_style_resources(name):
     assert mpl.rc_params_from_file(
         str(resource), fail_on_error=True, use_default_template=False
     )
+
+
+@pytest.mark.parametrize("presentation", [False, True])
+@pytest.mark.parametrize(
+    "defaults,overrides,expected",
+    [
+        ({"width": 240, "aspect_ratio": 2}, {}, [240, 120]),
+        ({"width": 240, "aspect_ratio": 2}, {"width": 200}, [200, 100]),
+        ({"width": 240, "height": 160, "aspect_ratio": 2}, {}, [240, 160]),
+        ({"height": 160}, {"width": 200, "height": 100}, [200, 100]),
+        ({"width": 240, "height": 160}, {"width": 200}, [200, 160]),
+    ],
+)
+def test_constructor_dimensions(presentation, defaults, overrides, expected):
+    import matplotlib.pyplot as plt
+
+    sf = SaveFigure(presentation=presentation, **defaults)
+    for create in [sf.figax, sf.get_figure]:
+        result = create(n_rows=1, n_cols=1, **overrides)
+        fig = result[0] if isinstance(result, tuple) else result
+        np.testing.assert_allclose(fig.get_size_inches() * 25.4, expected)
+        plt.close(fig)
+    fig = sf.get_figure(2, 1)
+    expected_height = defaults.get("height", sf.fig_width_mm * 2 / sf.aspect_ratio)
+    np.testing.assert_allclose(fig.get_size_inches()[1] * 25.4, expected_height)
+    plt.close(fig)
+
+
+@pytest.mark.parametrize("name", ["width", "height", "aspect_ratio"])
+@pytest.mark.parametrize("value", [0, -1, np.inf, np.nan])
+def test_invalid_constructor_dimensions(name, value):
+    with pytest.raises(ValueError, match=name):
+        SaveFigure(**{name: value})
+
+
+def test_presentation_compact_spacing():
+    import matplotlib.pyplot as plt
+
+    sf = SaveFigure(presentation=True)
+    with plt.style.context(sf.styles["light"], after_reset=True):
+        assert plt.rcParams["figure.constrained_layout.w_pad"] == 0.03
+        assert plt.rcParams["figure.constrained_layout.h_pad"] == 0.03
+        assert plt.rcParams["legend.labelspacing"] == 0.35
+        assert plt.rcParams["axes.labelpad"] == 3

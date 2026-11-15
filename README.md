@@ -100,11 +100,18 @@ larger markers, outward ticks, and restrained high-contrast palettes. Top and
 right spines, legend frames, and grids are hidden; enable a grid with
 `ax.grid(True)`. Publication defaults remain unchanged unless you enable this mode.
 
-A single panel defaults to 270 × 145 mm at the existing 250 dpi output resolution.
+A single panel defaults to 270 × 202.5 mm (4:3) at the existing 250 dpi output resolution.
 Automatic height scales with the row/column arrangement for multiple panels.
 Override dimensions in millimetres with `sf.figax(width=240, height=135)` or
-`sf.get_figure(1, 1, width=240, height=135)`. The constructor's `width` sets the
-default width, and automatic height scales proportionally.
+`sf.get_figure(1, 1, width=240, height=135)`. Set defaults on the constructor, for example
+`SaveFigure(presentation=True, width=240, aspect_ratio=4 / 3)` or
+`SaveFigure(presentation=True, width=240, height=180)`.
+`aspect_ratio` means single-panel width divided by height; automatic height is
+`width / aspect_ratio * n_rows / n_cols`. A constructor `height` fixes the total
+height for any panel arrangement and takes precedence over `aspect_ratio`.
+Per-figure `width` and `height` override their respective constructor defaults.
+Presentation mode also tightens layout padding and legend spacing to use the
+available space more densely while keeping the large text.
 
 Use `use_styles=["light"]` and `interactive_mode="light"` for a light background;
 the two options independently select saved and displayed styles. The existing
