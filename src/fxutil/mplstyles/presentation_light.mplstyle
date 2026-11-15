@@ -1,0 +1,2 @@
+# Dark tones on white; distinguish curves with markers or dashes as needed.
+axes.prop_cycle: cycler('color', ['0072B2', 'A65E00', '007A53', 'B44745', '7956A0'])

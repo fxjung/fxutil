@@ -330,6 +330,8 @@ class SaveFigure:
         wspace=0.02,
         hspace=0.02,
         subfolder_per_filetype=False,
+        *,
+        presentation: bool = False,
     ):
         """
         Initialize a SaveFigure object.
@@ -359,6 +361,9 @@ class SaveFigure:
             mm
         subfolder_per_filetype
             If True, create a subfolder for each filetype in the plot_dir.
+        presentation
+            Use larger sans-serif text, thicker lines, and presentation palettes.
+            Defaults to 270 mm wide with a 145 mm single-panel height.
         """
         # TODO: OPACITY!
 
@@ -381,10 +386,22 @@ class SaveFigure:
         self.suffix = suffix
         self.make_tex_safe = make_tex_safe
         self.name_str_space_replacement_char = name_str_space_replacement_char
+        self.presentation = presentation
+        self.styles = {name: list(styles) for name, styles in self.styles.items()}
+        if presentation:
+            for name, styles in self.styles.items():
+                styles.extend(
+                    [
+                        "fxutil.mplstyles.presentation",
+                        f"fxutil.mplstyles.presentation_{name}",
+                    ]
+                )
         self.use_styles = use_styles or [*self.styles.keys()]
         self.interactive_mode = interactive_mode
 
-        self.fig_width_mm = width or 170
+        self.fig_width_mm = (
+            width if width is not None else (270 if presentation else 170)
+        )
 
         if in_ipython_session():
             from IPython.display import display
@@ -583,8 +600,11 @@ class SaveFigure:
         width=None,
         height=None,
     ):
-        width_mm = width or self.fig_width_mm
-        height_mm = height or width_mm / n_cols * n_rows * 3 / 4
+        width_mm = width if width is not None else self.fig_width_mm
+        aspect = 145 / 270 if self.presentation else 3 / 4
+        height_mm = (
+            height if height is not None else width_mm / n_cols * n_rows * aspect
+        )
 
         width_in = width_mm / 25.4
         height_in = height_mm / 25.4
