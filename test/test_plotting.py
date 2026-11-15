@@ -234,7 +234,7 @@ def test_presentation_compact_spacing():
         assert plt.rcParams["figure.constrained_layout.w_pad"] == 0.06
         assert plt.rcParams["figure.constrained_layout.h_pad"] == 0.06
         assert plt.rcParams["legend.labelspacing"] == 0.35
-        assert plt.rcParams["axes.labelpad"] == 3
+        assert plt.rcParams["axes.labelpad"] == 6
 
 
 @pytest.mark.parametrize("presentation", [False, True])
@@ -285,3 +285,38 @@ def test_export_bounds_include_presentation_labels(presentation, tmp_path, monke
     pixels = plt.imread(tmp_path / "bounds-light.png")
     np.testing.assert_allclose(pixels.shape[1::-1], expected_sizes[0], atol=1)
     assert (tmp_path / "bounds-light.pdf").stat().st_size > 0
+
+
+@pytest.mark.parametrize("presentation", [False, True])
+@pytest.mark.parametrize("make_tex_safe", [False, True])
+def test_export_preserves_title_locations(
+    presentation, make_tex_safe, tmp_path, monkeypatch
+):
+    import matplotlib.pyplot as plt
+
+    sf = SaveFigure(
+        tmp_path,
+        presentation=presentation,
+        make_tex_safe=make_tex_safe,
+        use_styles=["light"],
+        interactive_mode=None,
+    )
+    exported = []
+
+    def inspect_export(fig, *args, **kwargs):
+        ax = fig.axes[0]
+        expected = "Panel A" if make_tex_safe else "Panel_A"
+        assert ax.get_title(loc="left") == expected
+        assert ax.get_title(loc="center") == r"Energy $E_x$"
+        assert ax.get_title(loc="right") == ("Run B" if make_tex_safe else "Run_B")
+        exported.append(fig)
+
+    def plot():
+        _fig, ax = sf.figax()
+        ax.set_title("Panel_A", loc="left")
+        ax.set_title(r"Energy $E_x$", loc="center")
+        ax.set_title("Run_B", loc="right")
+
+    monkeypatch.setattr(plt.Figure, "savefig", inspect_export)
+    sf(plot, "titles")
+    assert len(exported) == 1

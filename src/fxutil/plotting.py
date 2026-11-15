@@ -544,8 +544,9 @@ class SaveFigure:
                     if "$" not in (label := ax.get_ylabel()):
                         ax.set_ylabel(label.replace("_", " "))
 
-                    if "$" not in (label := ax.get_title()):
-                        ax.set_title(label.replace("_", " "))
+                    for location in ("left", "center", "right"):
+                        if "$" not in (label := ax.get_title(loc=location)):
+                            ax.set_title(label.replace("_", " "), loc=location)
 
                     if legend is not None:
                         for text in legend.texts:

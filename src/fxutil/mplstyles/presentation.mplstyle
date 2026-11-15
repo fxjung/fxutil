@@ -15,6 +15,8 @@ figure.titlesize: 30
 
 lines.linewidth: 3.2
 lines.markersize: 9
+lines.solid_joinstyle: round
+lines.dash_capstyle: round
 axes.linewidth: 1.6
 axes.spines.top: False
 axes.spines.right: False
@@ -34,15 +36,20 @@ ytick.minor.width: 1.1
 lines.markeredgewidth: 1.2
 errorbar.capsize: 3
 legend.frameon: False
-legend.handlelength: 1.7
+legend.handlelength: 1.5
 axes.grid: False
+axes.axisbelow: True
+grid.linewidth: 0.8
 grid.alpha: 0.25
 
 # Compact spacing while retaining room for large labels (pads in inches).
 figure.constrained_layout.w_pad: 0.06
 figure.constrained_layout.h_pad: 0.06
-axes.labelpad: 3
-axes.titlepad: 5
+axes.labelpad: 6
+axes.titlepad: 10
+axes.titlelocation: left
+xtick.major.pad: 5
+ytick.major.pad: 5
 legend.borderaxespad: 0.3
 legend.labelspacing: 0.35
-legend.handletextpad: 0.6
+legend.handletextpad: 0.5

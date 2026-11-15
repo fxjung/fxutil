@@ -95,11 +95,14 @@ def plot():
 sf(plot, "example")
 ```
 
-Presentation mode uses 26 pt text, 30 pt titles and axis labels, thicker lines,
-9 pt markers, 3.2 pt lines, outward ticks, and restrained high-contrast palettes.
-Axes and major ticks use a moderate 1.6 pt stroke; minor ticks remain lighter. Top and
-right spines, legend frames, and grids are hidden; enable a grid with
-`ax.grid(True)`. Publication defaults remain unchanged unless you enable this mode.
+Presentation mode uses 26 pt text, 30 pt titles and axis labels, 9 pt markers,
+3.2 pt lines, outward ticks, and restrained high-contrast palettes. Axes and major
+ticks use a moderate 1.6 pt stroke; minor ticks remain lighter. Neutral axes and
+high-contrast text give colored data visual emphasis. Titles align to the left of
+each panel, with compact legends and a little breathing room around labels.
+Top and right spines, legend frames, and grids are hidden; enable a subtle grid
+behind the data with `ax.grid(True)`. Publication defaults remain unchanged
+unless you enable this mode.
 
 A single panel defaults to 270 × 202.5 mm (4:3) at the existing 250 dpi output resolution.
 Automatic height scales with the row/column arrangement for multiple panels.
@@ -119,25 +122,25 @@ the two options independently select saved and displayed styles. The existing
 transparent output default is retained: place dark figures on dark slides, or
 set `output_transparency=False` to save the background color.
 
-LaTeX rendering remains enabled and retains the existing packages and mathematical
-notation. Presentation text uses Latin Modern Sans through the existing `lmodern`
-LaTeX package. A working LaTeX installation is required, as in publication mode.
-To use an installed Atkinson Hyperlegible Next font with Matplotlib's native text
-renderer, put this inside your plotting callback, before creating the figure:
+Presentation text uses Matplotlib's native renderer with Atkinson Hyperlegible
+Next when installed, falling back to DejaVu Sans, and Computer Modern mathtext for
+`$...$` mathematical notation. No additional font installation is required.
+For full LaTeX expressions, put this inside your plotting callback, before
+creating the figure:
 
 ```python
 import matplotlib as mpl
 
 mpl.rcParams.update({
-    "text.usetex": False,
-    "font.family": "sans-serif",
-    "font.sans-serif": ["Atkinson Hyperlegible Next", "DejaVu Sans"],
+    "text.usetex": True,
+    "font.sans-serif": ["Computer Modern Sans Serif"],
 })
 ```
 
-Native rendering supports Matplotlib mathtext (`$...$`), but arbitrary LaTeX
-commands may need adapting. The fallback font avoids requiring Atkinson's
-installation. These callback settings are scoped to SaveFigure's style context.
+This uses Latin Modern Sans through the retained `lmodern` LaTeX preamble and
+requires a working LaTeX installation. Font and renderer overrides inside the
+callback stay within SaveFigure's style context. Publication mode continues to
+use its existing LaTeX settings.
 
 The defaults balance readable text and clear curves with enough room for the
 data, using compact legend and label spacing. Presentation exports use a tight
@@ -149,3 +152,13 @@ Check readability at the final size on your slide. Shrinking a figure also shrin
 its text and lines; for a smaller slide region, use a smaller source canvas
 (e.g. `SaveFigure(presentation=True, width=180)`) so text occupies a larger fraction
 of the figure, rather than choosing oversized fonts for every plot.
+
+To render the visual review gallery (single- and four-panel examples, including
+error bars, uncertainty bands, log axes, markers, and grids):
+
+```bash
+MPLBACKEND=Agg python test/test_presentation_rendering.py /tmp/fxutil-preview
+```
+
+It writes light and dark PNG/PDF previews; dark previews include a black slide
+background for inspection. Actual figure exports retain their transparency setting.

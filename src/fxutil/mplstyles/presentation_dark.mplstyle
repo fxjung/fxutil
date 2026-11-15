@@ -1,1 +1,12 @@
 axes.prop_cycle: cycler('color', ['4CC9F0', 'FFB703', '80ED99', 'F28482', 'CDB4DB'])
+
+# Soft neutrals reduce glare; bright curves remain the primary visual focus.
+text.color: F2F4F7
+axes.labelcolor: F2F4F7
+axes.titlecolor: F2F4F7
+axes.edgecolor: A2ABB7
+xtick.color: A2ABB7
+ytick.color: A2ABB7
+xtick.labelcolor: F2F4F7
+ytick.labelcolor: F2F4F7
+grid.color: 8993A2

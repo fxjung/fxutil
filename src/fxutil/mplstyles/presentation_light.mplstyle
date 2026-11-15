@@ -1,2 +1,13 @@
 # Dark tones on white; distinguish curves with markers or dashes as needed.
 axes.prop_cycle: cycler('color', ['0072B2', 'A65E00', '007A53', 'B44745', '7956A0'])
+
+# Keep the frame quieter than the data, without weakening text contrast.
+text.color: 20252B
+axes.labelcolor: 20252B
+axes.titlecolor: 20252B
+axes.edgecolor: 65707A
+xtick.color: 65707A
+ytick.color: 65707A
+xtick.labelcolor: 20252B
+ytick.labelcolor: 20252B
+grid.color: A0A8B3
