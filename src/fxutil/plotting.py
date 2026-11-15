@@ -577,12 +577,19 @@ class SaveFigure:
             )
             name += self.name_str_space_replacement_char + style_name
 
+            # Include labels and outside legends even with manually positioned axes.
+            export_options = (
+                {"bbox_inches": "tight", "pad_inches": 0.08}
+                if self.presentation
+                else {}
+            )
             for ext in filetypes if filetypes else self.filetypes:
                 fig.savefig(
                     self._get_plot_dir(ext) / f"{name}.{ext}",
                     dpi=self.output_dpi,
                     transparent=self.output_transparency,
                     bbox_extra_artists=extra_artists,
+                    **export_options,
                 )
             plt.close(fig)
 

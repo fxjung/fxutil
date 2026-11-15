@@ -1,35 +1,35 @@
 # Keep the LaTeX packages and math support from tex.mplstyle.
 font.family: sans-serif
 font.sans-serif: Computer Modern Sans Serif, DejaVu Sans
-font.size: 48
-axes.titlesize: 52
-axes.labelsize: 52
-xtick.labelsize: 48
-ytick.labelsize: 48
-legend.fontsize: 48
-figure.titlesize: 52
+font.size: 26
+axes.titlesize: 30
+axes.labelsize: 30
+xtick.labelsize: 26
+ytick.labelsize: 26
+legend.fontsize: 26
+figure.titlesize: 30
 
-lines.linewidth: 3.5
-lines.markersize: 10
-axes.linewidth: 1.5
+lines.linewidth: 2.8
+lines.markersize: 8
+axes.linewidth: 1.3
 axes.spines.top: False
 axes.spines.right: False
 xtick.top: False
 ytick.right: False
 xtick.direction: out
 ytick.direction: out
-xtick.major.size: 8
-ytick.major.size: 8
-xtick.major.width: 1.5
-ytick.major.width: 1.5
+xtick.major.size: 6
+ytick.major.size: 6
+xtick.major.width: 1.3
+ytick.major.width: 1.3
 legend.frameon: False
 legend.handlelength: 1.7
 axes.grid: False
 grid.alpha: 0.25
 
 # Compact spacing while retaining room for large labels (pads in inches).
-figure.constrained_layout.w_pad: 0.03
-figure.constrained_layout.h_pad: 0.03
+figure.constrained_layout.w_pad: 0.06
+figure.constrained_layout.h_pad: 0.06
 axes.labelpad: 3
 axes.titlepad: 5
 legend.borderaxespad: 0.3

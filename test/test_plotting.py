@@ -102,14 +102,14 @@ def test_presentation_save_and_display(scheme, first_color, tmp_path, monkeypatc
     saved = []
 
     def plot():
-        assert mpl.rcParams["font.size"] == 48
+        assert mpl.rcParams["font.size"] == 26
         for key in ["axes.titlesize", "axes.labelsize", "figure.titlesize"]:
-            assert mpl.rcParams[key] == 52
+            assert mpl.rcParams[key] == 30
         for key in ["xtick.labelsize", "ytick.labelsize", "legend.fontsize"]:
-            assert mpl.rcParams[key] == 48
-        assert mpl.rcParams["lines.linewidth"] == 3.5
-        assert mpl.rcParams["lines.markersize"] == 10
-        assert mpl.rcParams["axes.linewidth"] == 1.5
+            assert mpl.rcParams[key] == 26
+        assert mpl.rcParams["lines.linewidth"] == 2.8
+        assert mpl.rcParams["lines.markersize"] == 8
+        assert mpl.rcParams["axes.linewidth"] == 1.3
         assert mpl.rcParams["font.family"] == ["sans-serif"]
         assert mpl.rcParams["text.usetex"]
         assert "lmodern" in mpl.rcParams["text.latex.preamble"]
@@ -230,7 +230,57 @@ def test_presentation_compact_spacing():
 
     sf = SaveFigure(presentation=True)
     with plt.style.context(sf.styles["light"], after_reset=True):
-        assert plt.rcParams["figure.constrained_layout.w_pad"] == 0.03
-        assert plt.rcParams["figure.constrained_layout.h_pad"] == 0.03
+        assert plt.rcParams["figure.constrained_layout.w_pad"] == 0.06
+        assert plt.rcParams["figure.constrained_layout.h_pad"] == 0.06
         assert plt.rcParams["legend.labelspacing"] == 0.35
         assert plt.rcParams["axes.labelpad"] == 3
+
+
+@pytest.mark.parametrize("presentation", [False, True])
+def test_export_bounds_include_presentation_labels(presentation, tmp_path, monkeypatch):
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    sf = SaveFigure(
+        tmp_path,
+        presentation=presentation,
+        interactive_mode=None,
+        use_styles=["light"],
+        filetypes=["png", "pdf"],
+        output_dpi=72,
+    )
+    savefig = Figure.savefig
+    expected_sizes = []
+
+    def inspect_export(fig, path, **kwargs):
+        fig.canvas.draw()
+        if presentation:
+            assert kwargs["bbox_inches"] == "tight"
+            bounds = fig.get_tightbbox(
+                fig.canvas.get_renderer(),
+                bbox_extra_artists=kwargs["bbox_extra_artists"],
+            )
+            size = np.array([bounds.width, bounds.height]) + 2 * kwargs["pad_inches"]
+        else:
+            assert "bbox_inches" not in kwargs
+            size = fig.get_size_inches()
+        expected_sizes.append(size * sf.output_dpi)
+        savefig(fig, path, **kwargs)
+
+    monkeypatch.setattr(Figure, "savefig", inspect_export)
+
+    def plot():
+        mpl.rcParams["text.usetex"] = False
+        _fig, ax = sf.figax()
+        # Deliberately put labels beyond the canvas, reproducing cropped exports.
+        ax.set_position([0.02, 0.02, 0.85, 0.85])
+        ax.plot([0, 1], [0, 1], label="Simulation")
+        ax.set_xlabel(r"Time $t$")
+        ax.set_ylabel(r"Response $R(t)$")
+        ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
+
+    sf(plot, "bounds", layout_engine="none")
+    pixels = plt.imread(tmp_path / "bounds-light.png")
+    np.testing.assert_allclose(pixels.shape[1::-1], expected_sizes[0], atol=1)
+    assert (tmp_path / "bounds-light.pdf").stat().st_size > 0
