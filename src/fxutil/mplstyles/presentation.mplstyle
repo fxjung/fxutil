@@ -26,3 +26,12 @@ legend.frameon: False
 legend.handlelength: 1.7
 axes.grid: False
 grid.alpha: 0.25
+
+# Compact spacing while retaining room for large labels (pads in inches).
+figure.constrained_layout.w_pad: 0.03
+figure.constrained_layout.h_pad: 0.03
+axes.labelpad: 3
+axes.titlepad: 5
+legend.borderaxespad: 0.3
+legend.labelspacing: 0.35
+legend.handletextpad: 0.6

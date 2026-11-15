@@ -332,6 +332,8 @@ class SaveFigure:
         subfolder_per_filetype=False,
         *,
         presentation: bool = False,
+        height: float | None = None,
+        aspect_ratio: float = 4 / 3,
     ):
         """
         Initialize a SaveFigure object.
@@ -363,7 +365,12 @@ class SaveFigure:
             If True, create a subfolder for each filetype in the plot_dir.
         presentation
             Use larger sans-serif text, thicker lines, and presentation palettes.
-            Defaults to 270 mm wide with a 145 mm single-panel height.
+            Defaults to 270 mm wide with a 4:3 single-panel aspect ratio.
+        height
+            Default total figure height in mm. Overrides automatic height.
+        aspect_ratio
+            Single-panel width divided by height, used for automatic sizing.
+            Total automatic height scales with the number of rows and columns.
         """
         # TODO: OPACITY!
 
@@ -399,6 +406,15 @@ class SaveFigure:
         self.use_styles = use_styles or [*self.styles.keys()]
         self.interactive_mode = interactive_mode
 
+        for name, value in {
+            "width": width,
+            "height": height,
+            "aspect_ratio": aspect_ratio,
+        }.items():
+            if value is not None and (not np.isfinite(value) or value <= 0):
+                raise ValueError(f"{name} must be finite and positive")
+        self.fig_height_mm = height
+        self.aspect_ratio = aspect_ratio
         self.fig_width_mm = (
             width if width is not None else (270 if presentation else 170)
         )
@@ -601,10 +617,9 @@ class SaveFigure:
         height=None,
     ):
         width_mm = width if width is not None else self.fig_width_mm
-        aspect = 145 / 270 if self.presentation else 3 / 4
-        height_mm = (
-            height if height is not None else width_mm / n_cols * n_rows * aspect
-        )
+        height_mm = height if height is not None else self.fig_height_mm
+        if height_mm is None:
+            height_mm = width_mm / n_cols * n_rows / self.aspect_ratio
 
         width_in = width_mm / 25.4
         height_in = height_mm / 25.4
