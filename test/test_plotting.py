@@ -102,14 +102,14 @@ def test_presentation_save_and_display(scheme, first_color, tmp_path, monkeypatc
     saved = []
 
     def plot():
-        assert mpl.rcParams["font.size"] == 18
+        assert mpl.rcParams["font.size"] == 48
         for key in ["axes.titlesize", "axes.labelsize", "figure.titlesize"]:
-            assert mpl.rcParams[key] == 22
+            assert mpl.rcParams[key] == 52
         for key in ["xtick.labelsize", "ytick.labelsize", "legend.fontsize"]:
-            assert mpl.rcParams[key] == 18
-        assert mpl.rcParams["lines.linewidth"] == 2.8
-        assert mpl.rcParams["lines.markersize"] == 8
-        assert mpl.rcParams["axes.linewidth"] == 1.3
+            assert mpl.rcParams[key] == 48
+        assert mpl.rcParams["lines.linewidth"] == 3.5
+        assert mpl.rcParams["lines.markersize"] == 10
+        assert mpl.rcParams["axes.linewidth"] == 1.5
         assert mpl.rcParams["font.family"] == ["sans-serif"]
         assert mpl.rcParams["text.usetex"]
         assert "lmodern" in mpl.rcParams["text.latex.preamble"]

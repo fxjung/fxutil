@@ -95,7 +95,7 @@ def plot():
 sf(plot, "example")
 ```
 
-Presentation mode uses 18 pt text, 22 pt titles and axis labels, thicker lines,
+Presentation mode uses 48 pt text, 52 pt titles and axis labels, thicker lines,
 larger markers, outward ticks, and restrained high-contrast palettes. Top and
 right spines, legend frames, and grids are hidden; enable a grid with
 `ax.grid(True)`. Publication defaults remain unchanged unless you enable this mode.
@@ -138,5 +138,10 @@ Native rendering supports Matplotlib mathtext (`$...$`), but arbitrary LaTeX
 commands may need adapting. The fallback font avoids requiring Atkinson's
 installation. These callback settings are scoped to SaveFigure's style context.
 
-Insert figures into slides at approximately their intended physical size.
-Heavy rescaling also scales labels and line widths, undermining readability.
+The large source fonts are intended for figures occupying one-third to two-thirds
+of a slide's width. On a standard 338.7 mm wide PowerPoint widescreen slide,
+a 270 mm figure placed at 113 mm wide has approximately 20 pt body text;
+at 226 mm wide, it has approximately 40 pt text. Font sizes scale with the
+inserted figure: `displayed_pt = source_pt * inserted_width / figure_width`.
+Check the final slide size when choosing dimensions. The compact spacing and
+large text relative to the axes keep partial-slide figures readable.
