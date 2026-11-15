@@ -75,6 +75,7 @@ def scinum(
     force_mode: Optional[str] = None,
     suffix=r"\,",
     thousands_sep=r"\,",
+    inf_lim=None,
 ) -> str:
     """
     Return LaTeX-formatted string representation of number in scientific notation.
@@ -110,7 +111,7 @@ def scinum(
             s += "0" * ndigits
         return s
 
-    if m.isinf(a):
+    if m.isinf(a) or (inf_lim and abs(a) >= inf_lim):
         s = r"\infty"
         if a > 0 and force_pref:
             s = rf"+{s}"

@@ -351,7 +351,7 @@ class SaveFigure:
             Valid values are styles such as "dark", "light", and None to not show anything.
         use_styles
             Styles to save plots in. Valid values are at least "dark" and "light".
-            ``None`` saves plots in all availabel styles.
+            ``None`` saves plots in all available styles.
         save_dark
         save_light
         filetypes
@@ -750,7 +750,7 @@ class LabelMaker:
             return self.label
 
 
-def force_log_ticks(ax):
+def force_log_ticks(ax, which="both"):
     """
     Configure log-scaled x and y axes with dense, unlabeled major and minor ticks.
 
@@ -758,20 +758,39 @@ def force_log_ticks(ax):
     ----------
     ax
         Matplotlib axes to update.
+    which
+        'x', 'y', 'both'
     """
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.xaxis.set_major_locator(mpl.ticker.LogLocator(base=10, subs=(1,), numticks=100))
-    ax.yaxis.set_major_locator(mpl.ticker.LogLocator(base=10, subs=(1,), numticks=100))
 
-    ax.xaxis.set_minor_locator(mpl.ticker.LogLocator(base=10, subs="all", numticks=100))
-    ax.yaxis.set_minor_locator(mpl.ticker.LogLocator(base=10, subs="all", numticks=100))
+    axes = []
+    if which in ["x", "both"]:
+        axes.append("x")
+    if which in ["y", "both"]:
+        axes.append("y")
 
     nf = mpl.ticker.NullFormatter()
-    ax.xaxis.set_major_formatter(nf)
-    ax.yaxis.set_major_formatter(nf)
-    ax.xaxis.set_minor_formatter(nf)
-    ax.yaxis.set_minor_formatter(nf)
+
+    if "x" in axes:
+        ax.set_xscale("log")
+        ax.xaxis.set_major_locator(
+            mpl.ticker.LogLocator(base=10, subs=(1,), numticks=100)
+        )
+        ax.xaxis.set_minor_locator(
+            mpl.ticker.LogLocator(base=10, subs="all", numticks=100)
+        )
+        ax.xaxis.set_major_formatter(nf)
+        ax.xaxis.set_minor_formatter(nf)
+
+    if "y" in axes:
+        ax.set_yscale("log")
+        ax.yaxis.set_major_locator(
+            mpl.ticker.LogLocator(base=10, subs=(1,), numticks=100)
+        )
+        ax.yaxis.set_minor_locator(
+            mpl.ticker.LogLocator(base=10, subs="all", numticks=100)
+        )
+        ax.yaxis.set_major_formatter(nf)
+        ax.yaxis.set_minor_formatter(nf)
 
     ax.tick_params(
         which="minor", length=3.5, width=0.8, labelleft=False, labelbottom=False
@@ -780,9 +799,14 @@ def force_log_ticks(ax):
         which="major", length=5.0, width=1.0, labelleft=False, labelbottom=False
     )
 
-    for tick in ax.xaxis.get_minor_ticks() + ax.yaxis.get_minor_ticks():
-        tick.tick1line.set_clip_on(False)
-        tick.tick2line.set_clip_on(False)
+    if "x" in axes:
+        for tick in ax.xaxis.get_minor_ticks():
+            tick.tick1line.set_clip_on(False)
+            tick.tick2line.set_clip_on(False)
+    if "y" in axes:
+        for tick in ax.yaxis.get_minor_ticks():
+            tick.tick1line.set_clip_on(False)
+            tick.tick2line.set_clip_on(False)
 
 
 def get_safe_color_axes(ax):
