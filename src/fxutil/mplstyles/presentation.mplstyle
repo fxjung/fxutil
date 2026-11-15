@@ -1,6 +1,10 @@
 # Keep the LaTeX packages and math support from tex.mplstyle.
 font.family: sans-serif
-font.sans-serif: Computer Modern Sans Serif, DejaVu Sans
+font.sans-serif: Atkinson Hyperlegible Next, DejaVu Sans
+
+# Mathematics: Computer Modern
+text.usetex: False
+mathtext.fontset: cm
 font.size: 26
 axes.titlesize: 30
 axes.labelsize: 30
