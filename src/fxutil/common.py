@@ -11,29 +11,22 @@ from pympler.asizeof import asizeof
 
 
 def fmt_bytes(s):
+    """Return a (value, unit) pair for a positive byte count.
+
+    Choose the nearest power of 1024 on a logarithmic scale, using units B
+    through PiB. For example, 512 bytes yields ``(0.5, "KiB")``. Zero and
+    counts beyond the supported unit indices raise an error.
+    """
     return (
         lambda s, k: (s * 2 ** (-k * 10), ["B", "KiB", "MiB", "GiB", "TiB", "PiB"][k])
     )(s, round(m.log(s) / m.log(2) / 10))
 
 
 def described_size(desc, obj):
-    """
-    Use like
-    ```py
-    >>> print(described_size("my huge-ass object's size: ", my_huge_ass_object))
-    my huge-ass object's size: 5.32 TiB
-    ```
+    """Estimate the in-memory size of an object with Pympler's ``asizeof``.
 
-    Parameters
-    ----------
-    desc : str
-        string to print along
-    obj : object
-        thing to get the size of
-
-    Returns
-    -------
-    str
+    Return the supplied prefix followed by the size to two decimal places and
+    a binary unit. Include any desired space or punctuation in ``desc``.
     """
     return (lambda desc, fmtd: f"{desc}{fmtd[0]:.2f} {fmtd[1]}")(
         desc, fmt_bytes(asizeof(obj))
@@ -41,18 +34,11 @@ def described_size(desc, obj):
 
 
 def round_by_method(x, ndigits, round_method: str = "round"):
-    """
+    """Round a number to ``ndigits`` decimal places.
 
-    Parameters
-    ----------
-    x
-    ndigits
-    round_method
-        One of 'round', 'floor', 'ceil'
-
-    Returns
-    -------
-
+    Choose Python's ``"round"``, or ``"floor"`` / ``"ceil"`` for rounding
+    toward negative / positive infinity. Negative precisions round to tens,
+    hundreds, and so on. An unknown method raises ``ValueError``.
     """
     if round_method == "round":
         return round(x, ndigits)
@@ -77,28 +63,24 @@ def scinum(
     thousands_sep=r"\,",
     inf_lim=None,
 ) -> str:
-    """
-    Return LaTeX-formatted string representation of number in scientific notation.
+    r"""Format a real number as a LaTeX math fragment, without dollar signs.
 
-    Parameters
-    ----------
-    a
-        number to format
-    force_pref
-        force prepending sign prefix
-    round_method
-        One of 'round', 'floor', 'ceil'
-    ndigits
-        Number of decimal places
-    force_mode
-        'e', 'f'
-    suffix
-        suffix to append to the number
+    Let *e* be the floor of the base-10 logarithm of the absolute value.
+    Scientific notation is used when ``abs(e) > 2``. Set ``force_mode="e"``
+    for scientific notation or ``"f"`` for fixed point. The exponent is
+    chosen before rounding.
 
+    ``ndigits`` counts decimal places in the displayed number or mantissa.
+    ``round_method`` accepts the methods of :func:`round_by_method`.
+    Fractional trailing zeros are stripped by default. With zero decimal
+    places this also strips significant integer zeros, so use
+    ``no_trailing_zeros=False`` at that precision.
 
-    Returns
-    -------
-
+    Fixed-point groups and the trailing suffix both default to the LaTeX
+    thin space ``\,``. Set ``thousands_sep=""`` or ``suffix=""`` to omit
+    either. ``force_pref=True`` prefixes positive values with a plus sign.
+    Zero and infinity omit the suffix. A positive ``inf_lim`` formats
+    magnitudes at or above the threshold as infinity. NaN is unsupported.
     """
 
     def strip_trailing_zeros(s):
@@ -139,14 +121,11 @@ def scinum(
 
 
 def get_git_repo_path():
-    """
-    Returns the path to the root of the inner most git repository that the
-    working directory resides in, if any. Raises if not contained in any
-    repository.
+    """Return the parent of the Git directory discovered from the working directory.
 
-    Returns
-    -------
-    repository_path: Path
+    In an ordinary checkout this is the repository root. Linked worktrees and
+    bare repositories have different Git directory layouts. Raise ``ValueError``
+    if discovery finds no repository.
     """
 
     working_dir = os.getcwd()
@@ -158,24 +137,10 @@ def get_git_repo_path():
 
 
 def minmax(ser, min_quantile: float | None = None, max_quantile: float | None = None):
-    """
-    Convenience wrapper that returns the minimum and maximum of an iterable.
+    """Return the lower and upper bounds of a nonempty sequence.
 
-    Parameters
-    ----------
-    ser
-        Iterable to find the minimum and maximum of.
-    min_quantile
-        If not None, use quantile for min instead of global min.
-    max_quantile
-        If not None, use quantile for max instead of global max.
-
-    Returns
-    -------
-    min
-        Minimum
-    max
-        Maximum
+    Each optional quantile (0 to 1) replaces the corresponding extreme with
+    a NumPy quantile. Supply data that can be traversed twice.
     """
     if min_quantile is None:
         _min = min(ser)
@@ -191,57 +156,21 @@ def minmax(ser, min_quantile: float | None = None, max_quantile: float | None = 
 
 
 def mmr(ser):
-    """
-    Convenience wrapper that returns the minimum, maximum, and value range of an
-    iterable.
-
-    Parameters
-    ----------
-    ser
-        Iterable to find the minimum, maximum, and value range of.
-
-    Returns
-    -------
-    min
-        Minimum
-    max
-        Maximum
-    range
-        Value range (maximum - minimum)
-    """
+    """Return (minimum, maximum, maximum - minimum) for a nonempty numeric sequence."""
     min_, max_ = minmax(ser)
     return min_, max_, max_ - min_
 
 
 def nixt(thing: Iterable):
-    """
-    Get the first element of an iterable.
-
-    Parameters
-    ----------
-    thing
-
-    Returns
-    -------
-    First element of the iterable.
-
-    """
+    """Return the first item. An empty iterable raises ``StopIteration``."""
     return next(iter(thing))
 
 
 def onixt(thing: Iterable):
-    """
-    Return the first element of an iterable.
-    Fail with a bang if iterable contains more than one element.
+    """Return the sole item. An empty iterable raises ``StopIteration``.
 
-    Parameters
-    ----------
-    thing
-        Iterable to exhaust and return the value of
-
-    Returns
-    -------
-    Exactly one element
+    Raise ``ValueError`` upon reading a second item. On an iterator, the
+    items inspected are consumed.
     """
     iter_ = iter(thing)
     val = next(iter_)
@@ -254,18 +183,14 @@ def onixt(thing: Iterable):
 
 
 def thing(which: Optional[str]):
-    """
-    Return a thing.
+    """Build example data for the requested container.
 
-    (Example data)
-
-    Parameters
-    ----------
-    which
-
-    Returns
-    -------
-
+    ``None`` or ``"dataframe"`` (aliases ``"pandas", "pd", "df", "d"``)
+    gives columns a = 10…19 and b = 100…109. ``"array"`` (``"np", "numpy",
+    "n"``) gives the same two columns as a NumPy array. ``"series"`` (``"ser",
+    "s"``), ``"list"`` (``"l"``), ``"tuple"`` (``"t"``) and ``"set"`` use just
+    the first column. ``"dict"`` maps letters k through t to 10 through 19.
+    Supply the argument explicitly. Unknown names raise ``ValueError``.
     """
     tabular_data = np.c_[10:20, 100:110]
     iterable_1d = map(op.methodcaller("item"), tabular_data[:, 0])
@@ -289,6 +214,15 @@ def thing(which: Optional[str]):
 
 
 def get_unique_with_bang(iterable):
+    """Return the first value if all items compare equal.
+
+    Repeated values are allowed. Unequal values raise ``ValueError`` for
+    ordinary hashable scalars. Empty input raises ``IndexError``. An iterator
+    is materialized. Multi-row numeric Series and single-column numeric
+    frames work directly. For a one-row Series or one containing Python
+    strings, pass ``series.to_list()`` to avoid errors from pandas scalar
+    handling.
+    """
     if isinstance(iterable, (pd.Series, pd.DataFrame)):
         ser = iterable.squeeze()
         val = iterable.iloc[0].squeeze()
@@ -312,4 +246,9 @@ bunny = get_unique_with_bang
 
 
 def permute(iterable, perm):
+    """Return a list of items from an indexable object in the order given by ``perm``.
+
+    Indices can repeat or omit items. Indexing follows the input object's
+    own rules.
+    """
     return [iterable[i] for i in perm]

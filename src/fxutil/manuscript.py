@@ -16,6 +16,17 @@ def package_manuscript(
     figures_dest_dir_name="figures",
     delete_existing: bool = True,
 ):
+    """Build a submission directory and ZIP beside the manuscript source directory.
+
+    Use a main TeX filename relative to the source root. Figure paths come
+    from literal includegraphics commands. ``figures_src_dir_name`` is
+    accepted but unused. ``tables_src_dir_name`` selects table inputs for
+    inlining, and ``figures_dest_dir_name`` names the output figure folder.
+
+    With ``delete_existing=True``, existing outputs are removed before the
+    source is checked. The function runs latexmk and zip, prints the archive
+    path and returns None.
+    """
     submission_src_dir = Path(submission_src_dir).expanduser().resolve()
     tex_name = Path(tex_name)
 

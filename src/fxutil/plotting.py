@@ -23,12 +23,13 @@ DEFAULT_FILETYPES = ["png"]
 
 
 class Evf:
-    """
-    Evaluate a vectorized function on a space `s` (array or slice).
+    """Evaluate a function on a whole domain and return (domain, result).
 
-    Usage:
-        ax.plot(*evf[0:1:50j, lambda x, c: x**2 + c, {"c": 5}])
-        ax.plot(*evf(np.r_[0:1:50j], lambda x, c: x**2 + c, c=5))
+    The module-level instance is ``evf``. Call ``evf(x, f, **kwargs)`` or
+    use ``evf[start:stop:step, f, kwargs_dict]``. A slice is expanded
+    through NumPy's ``r_``. A complex step such as ``50j`` requests 50
+    evenly spaced samples including both endpoints. The function receives
+    the whole array in one call.
     """
 
     def __getitem__(self, item):
@@ -80,6 +81,19 @@ solarized_colors = dict(
 
 
 def easy_prop_cycle(ax, N=10, cmap="cividis", markers=None):
+    """Set and return the axes with a new color and/or marker cycle.
+
+    Pass a sequence of colors, or use ``cmap="solarized", N=8`` for the
+    eight Solarized accents. Markers repeat to length ``N`` and pair with
+    colors by position, so the two cycles must have equal lengths.
+    Set ``cmap=None`` for a markers-only cycle.
+
+    On the repository's locked Matplotlib 3.11.2, ordinary colormap
+    names (including the default ``"cividis"``) raise ``AttributeError``:
+    this helper calls the removed ``matplotlib.cm.get_cmap``. To sample a
+    named map, pass ``cmap=plt.colormaps["cividis"](np.linspace(0, 1, N))``
+    with the same ``N`` as the cycle.
+    """
     cyclers = []
     if cmap is not None:
         cycle = []
@@ -126,43 +140,20 @@ def easy_prop_cycle(ax, N=10, cmap="cividis", markers=None):
 def figax(
     figsize: tuple[float, float] = (4, 3), dpi: int = 130, **kwargs
 ) -> tuple[plt.Figure, plt.Axes]:
-    """
-    Convenience function to create matplotlib figure and axis objects with the given
-    parameters.
+    """Return a figure and its axes from ``plt.subplots`` with constrained layout.
 
-    Parameters
-    ----------
-    figsize
-        Figure size in inches (width, height).
-    dpi
-        Resolution of the figure (if rasterized output).
-    kwargs
-        Additional arguments passed to `plt.subplots`.
-    Returns
-    -------
-    fig, ax
-
+    ``figsize`` is (width, height) in inches. Additional keywords go to
+    ``subplots``, so a grid can return an array of axes.
     """
     fig, ax = plt.subplots(figsize=figsize, dpi=dpi, layout="constrained", **kwargs)
     return fig, ax
 
 
 def set_aspect(ratio=3 / 4, axs=None) -> None:
-    """
-    Set "viewport aspect ratio" (i.e. axes aspect ratio) to the desired value,
-    for all axes of the current figure.
+    """Set axes viewport height divided by width, accounting for the current data ratio.
 
-    If some axes need to be excluded (like colorbars), supply the axes objects to be
-    adjusted manually using the ``axs`` parameter.
-
-    Parameters
-    ----------
-    ratio
-        The desired aspect ratio.
-    axs
-        The axes objects to be adjusted. If None, all axes of the current figure are
-        adjusted.
-
+    Pass one axes or a collection. Omitting ``axs`` applies the change to
+    every axes of the current figure, including colorbars.
     """
     if axs is None:
         axs = plt.gcf().get_axes()
@@ -174,31 +165,10 @@ def set_aspect(ratio=3 / 4, axs=None) -> None:
 
 
 def pad_range(left, right, pad=0.03, log=False):
-    """
-    Pad plots ranges to achieve equal-distance padding on both sides.
+    """Return expanded bounds with each margin occupying ``pad`` of the final span.
 
-    Use like
-
-    ```python
-        ax.set_xlim(*pad_range(*minmax(values)))
-    ```
-
-    Parameters
-    ----------
-    left
-        Left unpadded bound
-    right
-        Right unpadded bound
-    pad
-        Padding to  be added on both sides as a fraction.
-    log
-        If True, assume log scale
-
-    Returns
-    -------
-    bounds
-        Tuple of left and right bounds
-
+    Use 0 < pad < 0.5. With ``log=True``, supply positive bounds. Padding
+    is then symmetric in log coordinates.
     """
     if log:
         left = np.log(left)
@@ -218,23 +188,15 @@ def pad_range(left, right, pad=0.03, log=False):
 
 
 class TwoScaleLogNorm(mpl.colors.Normalize):
-    """
-    Two-scale logarithmic norm for matplotlib color maps.
+    """Normalize data with a separate logarithm of a linear function on each side of center.
+
+    For nonzero ``vmin < center < vmax``, the three anchors map to 0, 0.5
+    and 1 respectively. The formula extrapolates outside the interval and
+    can take a logarithm outside its domain.
     """
 
     def __init__(self, vmin, vmax, center):
-        """
-        Initialize the TwoScaleLogNorm, setting min/max/center values.
-
-        Parameters
-        ----------
-        vmin
-            Minimum value of the scale
-        vmax
-            Maximum value of the scale
-        center
-            Center value of the scale
-        """
+        """Set the three anchors for the normalization."""
         super().__init__(vmin, vmax)
         self.center = center
 
@@ -245,19 +207,7 @@ class TwoScaleLogNorm(mpl.colors.Normalize):
         self.alow = (1 - self.blow) / vmin
 
     def __call__(self, x):
-        """
-        Return normalized value of data value x.
-
-        Parameters
-        ----------
-        x
-            Data value
-
-        Returns
-        -------
-        Normalized value
-
-        """
+        """Map a scalar or NumPy array of data values to the color scale."""
         return np.log(
             np.where(
                 x > self.center, self.aup * x + self.bup, self.alow * x + self.blow
@@ -265,19 +215,7 @@ class TwoScaleLogNorm(mpl.colors.Normalize):
         )
 
     def inverse(self, y):
-        """
-        Return inverse mapping of normalized value y to original data value.
-
-        Parameters
-        ----------
-        y
-            Normalized value
-
-        Returns
-        -------
-        Original data value
-
-        """
+        """Map normalized values back to data coordinates."""
         return np.where(
             y > 0.5,
             (np.exp(y) - self.bup) / self.aup,
@@ -286,8 +224,37 @@ class TwoScaleLogNorm(mpl.colors.Normalize):
 
 
 class SaveFigure:
-    """
-    A class to save figures in different styles and formats.
+    """Render a plotting callback in light or dark styles and save each requested format.
+
+    ``plot_dir`` defaults to ``data/figures`` under the discovered Git root
+    in an ordinary checkout, or ``./figures`` outside Git. Directories are
+    created on first export. ``subfolder_per_filetype=True`` adds a directory
+    named after each extension.
+
+    ``use_styles`` selects saved versions (default both dark and light).
+    ``interactive_mode`` selects a separate preview (default dark, ``None``
+    disables it). ``filetypes`` accepts one extension or a sequence and
+    defaults to PNG. ``output_dpi`` controls export resolution and
+    ``display_dpi`` controls preview resolution.
+
+    ``output_transparency`` requests transparent exports. ``make_tex_safe``
+    replaces underscores with spaces in axis labels, axes titles and legend
+    text on export, skipping strings containing a dollar sign.
+
+    ``suffix`` is appended to the supplied name. Spaces are then replaced
+    by ``name_str_space_replacement_char``, which also separates the style
+    name from the stem.
+
+    ``presentation=True`` selects slide typography and a wider canvas.
+    ``width`` and ``height`` are in millimetres. The default width is
+    170 mm for publication and 270 mm for presentation. Without a fixed
+    height, ``aspect_ratio`` sets the width-to-height ratio of one panel.
+
+    ``left``, ``bottom``, ``right`` and ``top`` define the layout rectangle.
+    ``w_pad`` and ``h_pad`` are in millimetres, and ``wspace`` and ``hspace``
+    are fractional spacings. These settings are stored on the instance.
+    Pass ``layout_engine_params=sf.layout_engine_params`` when calling the
+    saver to apply them.
     """
 
     _base_plot_dir: Path
@@ -335,43 +302,7 @@ class SaveFigure:
         height: float | None = None,
         aspect_ratio: float = 4 / 3,
     ):
-        """
-        Initialize a SaveFigure object.
-
-        Parameters
-        ----------
-        plot_dir
-            Output directory for the figures. If None, the directory is determined
-            automatically. If we are inside a git repository `<repo>`, plots are stored
-            to `<repo>/data/figures`. If we are not inside a git repository, plots are
-            stored to `./figures`, i.e. starting from the current working directory.
-        suffix
-        output_dpi
-        output_transparency
-        make_tex_safe
-        interactive_mode
-            Valid values are styles such as "dark", "light", and None to not show anything.
-        use_styles
-            Styles to save plots in. Valid values are at least "dark" and "light".
-            ``None`` saves plots in all available styles.
-        save_dark
-        save_light
-        filetypes
-            Filetypes to save plots as. Defaults to ["pdf", "png"]
-        name_str_space_replacement_char
-        width
-            mm
-        subfolder_per_filetype
-            If True, create a subfolder for each filetype in the plot_dir.
-        presentation
-            Use larger sans-serif text, thicker lines, and presentation palettes.
-            Defaults to 270 mm wide with a 4:3 single-panel aspect ratio.
-        height
-            Default total figure height in mm. Overrides automatic height.
-        aspect_ratio
-            Single-panel width divided by height, used for automatic sizing.
-            Total automatic height scales with the number of rows and columns.
-        """
+        """Configure output paths, styles, canvas dimensions and layout defaults."""
         # TODO: OPACITY!
 
         if plot_dir is not None:
@@ -448,17 +379,18 @@ class SaveFigure:
             "none", "compressed", "tight", "constrained"
         ] = "constrained",
     ):
-        """
-        Call to save the figure in the specified styles and formats.
+        """Run a zero-argument callback once per saved style and once for an enabled preview.
 
-        Parameters
-        ----------
-        plot_function
-        name
-        fig
-        panel
-        extra_artists
-        filetypes
+        Supply a string ``name`` for the output files. Each export uses the
+        current pyplot figure after the callback, or the explicit ``fig`` if
+        given. The preview always uses the current figure. Callback return
+        values are ignored. Figures are closed after each successful pass.
+
+        ``filetypes`` overrides the instance formats for this call.
+        ``layout_engine`` selects the Matplotlib layout engine (constrained by
+        default). A supplied parameter dictionary is passed to its ``set``
+        method. ``extra_artists`` supplies additional artists for bounding-box
+        calculation. The ``panel`` argument has no effect.
         """
         for style_name in self.use_styles:
             style = self.styles[style_name]
@@ -596,13 +528,10 @@ class SaveFigure:
 
     @staticmethod
     def register_contrast_color(style_name: str):
-        """
-        Register the "contrast" and "acontrast" colors in matplotlib's color map.
+        """Set Matplotlib's global named colors ``contrast`` and ``acontrast``.
 
-        Parameters
-        ----------
-        style_name
-            The style name, either "light" or "dark".
+        Light uses black and white respectively. Dark reverses the pair.
+        The most recent registration persists after the style context exits.
         """
         match style_name:
             case "light":
@@ -624,6 +553,12 @@ class SaveFigure:
         width=None,
         height=None,
     ):
+        """Create an empty pyplot figure at the instance output DPI.
+
+        Per-call dimensions override the corresponding instance defaults in
+        millimetres. When height is automatic, the total height is
+        ``width / aspect_ratio * n_rows / n_cols``.
+        """
         width_mm = width if width is not None else self.fig_width_mm
         height_mm = height if height is not None else self.fig_height_mm
         if height_mm is None:
@@ -657,33 +592,21 @@ class SaveFigure:
         width=None,
         height=None,
     ):
-        """
-        Create a figure and axes.
+        """Return (figure, axes) for a row-major GridSpec with an axes in every cell.
 
-        Parameters
-        ----------
-        n_panels
-            Number of panels to create
-        n_rows
-            Number of rows to squeeze the panels into
-        n_cols
-            Number of columns to squeeze the panels into
-        width_ratios
-        height_ratios
-        panel_labels
-            If an iterable of integers, label the corresponding panels with
-            (a), (b), ... at the top-left corner.
-            If None, label panels only if there are multiple panels.
-        width
-        height
+        With no arguments the result contains one axes. A multi-cell grid
+        returns a flat list. Specifying only ``n_panels`` uses two columns.
+        With one grid dimension given, the other rounds up to fit all panels.
+        An explicit grid too small for the panel count raises ``ValueError``.
 
-        Returns
-        -------
+        ``left``, ``right``, ``top``, ``bottom``, ``wspace``, ``hspace`` and the
+        row/column ratios are passed to GridSpec. The active layout engine
+        can affect the final spacing. ``width`` and ``height`` override the
+        instance dimensions in millimetres.
 
-        fig
-            Figure
-        axs
-            A single axes or a tuple of multiple axes
+        Multi-cell grids get TeX panel labels by default. Pass a list of
+        zero-based indices to label selected cells, or an empty list to omit
+        all labels when using native Matplotlib text.
         """
         if n_panels is None:
             n_rows = n_rows or 1
@@ -756,11 +679,16 @@ class SaveFigure:
 
     @property
     def output_dir(self):
+        """Base output directory as a pathlib Path, before any format subdirectory."""
         return self._base_plot_dir
 
 
 class LabelMaker:
-    """Return a label once, then suppress it on subsequent calls."""
+    """Return the supplied label on the first call and None thereafter.
+
+    Create an instance inside the plotting callback when each style should
+    get its own legend entry.
+    """
 
     has_fired = False
 
@@ -774,15 +702,11 @@ class LabelMaker:
 
 
 def force_log_ticks(ax, which="both"):
-    """
-    Configure log-scaled x and y axes with dense, unlabeled major and minor ticks.
+    """Set base-10 log scaling and dense, unlabelled ticks on selected axes.
 
-    Parameters
-    ----------
-    ax
-        Matplotlib axes to update.
-    which
-        'x', 'y', 'both'
+    Choose ``which="x"``, ``"y"`` or ``"both"``. The final tick styling
+    disables bottom and left tick labels on both axes even when only one
+    scale is changed.
     """
 
     axes = []
@@ -833,6 +757,12 @@ def force_log_ticks(ax, which="both"):
 
 
 def get_safe_color_axes(ax):
+    """Replace a subplot with a fresh data axes and a narrow colorbar axes.
+
+    The two columns occupy the original SubplotSpec in a 1:0.05 width
+    ratio. Call before plotting. Removing the original axes also removes
+    its artists from the figure.
+    """
     fig = ax.figure
 
     ss = ax.get_subplotspec()

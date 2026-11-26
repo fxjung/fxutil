@@ -13,19 +13,7 @@ Combi = Annotated[Union[T, Iterable[T], str], _CombiTag]
 
 
 def is_combi_ann(ann) -> bool:
-    """
-    Check if the given annotation is a Combi annotation.
-
-    Parameters
-    ----------
-    ann
-        Annotation to check.
-
-    Returns
-    -------
-    True if the annotation is believed to be a Combi annotation, False otherwise.
-
-    """
+    """Recognize the Combi marker on a runtime annotation, including within a typing union."""
     if ann is None:
         # Not annotated
         return False
@@ -41,6 +29,7 @@ def is_combi_ann(ann) -> bool:
 
 
 def parse_combi_argument(arg, exceptions=None):
+    """Normalize one value using the same rules as :func:`parse_combi_args`."""
     if arg is None or arg in (exceptions or []):
         # Received None or value from the exceptions list, return as is
         return arg
@@ -54,31 +43,18 @@ def parse_combi_argument(arg, exceptions=None):
 
 
 def parse_combi_args(func: Callable | None = None, exceptions: list = None) -> Callable:
-    """
-    Decorator to parse Combi arguments of a function.
+    """Normalize arguments annotated with ``Combi[T]`` when the function is called.
 
-    Usage example:
+    Scalars and strings become one-tuples. Other iterables, including
+    generators and mappings, pass through as supplied. ``None`` and values
+    equal to an entry in ``exceptions`` also pass through. The rules apply to
+    positional arguments, keywords and omitted defaults. Element types are
+    unchecked.
 
-    .. code-block:: python
-
-       @parse_combi_args
-       def my_function(param: Combi[int] | None):
-           ...
-
-    This will ensure that ``param`` is always treated as an iterable of integers (or None)
-    when ``my_function`` is called, even if a single integer is passed.
-
-
-    Parameters
-    ----------
-    func
-        The function to decorate
-    exceptions
-        Values excluded from modification, e.g., a special string value.
-
-    Returns
-    -------
-
+    Use as ``@parse_combi_args`` or ``@parse_combi_args(exceptions=[...])``.
+    The decorator inspects runtime annotation objects. String annotations
+    (including those from postponed evaluation via the future import) are
+    skipped.
     """
 
     def _decorate(func):
