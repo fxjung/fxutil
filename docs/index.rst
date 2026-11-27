@@ -34,6 +34,7 @@ publication typography, multiple formats, panel sizing and previews.
 
 .. toctree::
    :maxdepth: 2
+   :caption: Documentation
 
    figures
    manuscript
